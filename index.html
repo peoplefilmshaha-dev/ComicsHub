@@ -204,9 +204,11 @@ select option{background:#1e1e1e}
     <div class="nav-item active" onclick="showPage('catalog')" data-page="catalog"><span class="nav-icon">📚</span> Каталог</div>
     <div class="nav-item" onclick="showPage('drafts')" data-page="drafts"><span class="nav-icon">✏️</span> Черновики</div>
     <div class="nav-section">Инструменты</div>
-    <div class="nav-item" onclick="showPage('ai')" data-page="ai"><span class="nav-icon">🤖</span> ИИ Генератор</div>
     <div class="nav-item" onclick="showPage('editor')" data-page="editor"><span class="nav-icon">🎨</span> Редактор обводки</div>
-    <div class="nav-item" onclick="openAddComicModal()"><span class="nav-icon">➕</span> Новый комикс</div>
+    <div class="nav-item admin-only" onclick="showPage('ai')" data-page="ai" style="display:none"><span class="nav-icon">🤖</span> ИИ Генератор</div>
+    <div class="nav-item admin-only" onclick="openAddComicModal()" style="display:none"><span class="nav-icon">➕</span> Новый комикс</div>
+    <div class="nav-section" style="margin-top:auto"></div>
+    <div class="nav-item" id="admin-btn" onclick="toggleAdmin()" style="margin-top:8px;border:1px solid var(--border)"><span class="nav-icon">🔐</span> <span id="admin-btn-label">Права Администратора</span></div>
   </nav>
   <div class="sidebar-footer">
     <div class="stats-row">
@@ -221,7 +223,7 @@ select option{background:#1e1e1e}
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Каталог</div>
     <div class="search-box"><span>🔍</span><input type="text" placeholder="Поиск..." id="search-input" oninput="filterComics()"/></div>
-    <button class="btn btn-accent" onclick="openAddComicModal()">+ Новый комикс</button>
+    <button class="btn btn-accent admin-only" id="topbar-new-btn" onclick="openAddComicModal()" style="display:none">+ Новый комикс</button>
   </div>
 
   <!-- CATALOG -->
@@ -251,7 +253,7 @@ select option{background:#1e1e1e}
     <div class="divider"></div>
     <div class="section-header">
       <div class="section-title">Главы</div>
-      <button class="btn btn-accent btn-sm" onclick="openAddChapterModal()">+ Добавить главу</button>
+      <button class="btn btn-accent btn-sm admin-only" onclick="openAddChapterModal()" style="display:none">+ Добавить главу</button>
     </div>
     <div class="chapters-list" id="detail-chapters"></div>
     <div id="detail-no-chapters" class="empty-state" style="display:none;padding:30px 0">
@@ -480,13 +482,31 @@ select option{background:#1e1e1e}
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="modal-admin">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title">🔐 Права Администратора</div>
+      <button class="modal-close" onclick="closeModal('modal-admin')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Пароль</label>
+        <input type="password" id="admin-pass-input" placeholder="Введи пароль..." />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-admin')">Отмена</button>
+        <button class="btn btn-accent" onclick="submitAdminPass()">Войти 👑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
 let DB=JSON.parse(localStorage.getItem('comicshub_db')||'null')||{comics:[],nextId:1};
 let currentPage='catalog',prevPage='catalog',currentComicId=null,editingComicId=null,editingChapterId=null;
 let readerComicId=null,readerChapterIdx=0,pendingChapterPages=[],searchQuery='',activeGenre='all';
-function save(){localStorage.setItem('comicshub_db',JSON.stringify(DB))}
 
 function showPage(name){
   prevPage=currentPage;currentPage=name;
@@ -534,12 +554,13 @@ function makeComicCard(comic){
   const chapCount=(comic.chapters||[]).length;
   const pageCount=(comic.chapters||[]).reduce((a,c)=>a+(c.pages||[]).length,0);
   let coverHTML=comic.cover?`<div style="position:relative;width:100%;aspect-ratio:2/3;overflow:hidden"><img src="${comic.cover}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>`:`<div class="comic-cover-gradient" style="background:linear-gradient(135deg,${comic.color||'#1a1a2e'} 0%,#000 100%);position:relative"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:52px">${comic.emoji||'📖'}</span>${comic.name}</div>`;
-  const badge=comic.status==='draft'?`<div class="draft-badge">ЧЕРНОВИК</div>`:'';
-  card.innerHTML=`<div style="position:relative">${coverHTML}${badge}</div>
-    <div class="comic-card-actions">
+  const adminActions=isAdmin?`<div class="comic-card-actions">
       <button class="card-action-btn" onclick="event.stopPropagation();openEditComicModal(${comic.id})">✏️</button>
       <button class="card-action-btn del" onclick="event.stopPropagation();confirmDeleteComic(${comic.id})">🗑️</button>
-    </div>
+    </div>`:'';
+  const badge=comic.status==='draft'?`<div class="draft-badge">ЧЕРНОВИК</div>`:'';
+  card.innerHTML=`<div style="position:relative">${coverHTML}${badge}</div>
+    ${adminActions}
     <div class="comic-info">
       <div class="comic-title">${comic.name}</div>
       <div class="comic-meta"><span>📄 ${chapCount} ${declChap(chapCount)}</span><span>·</span><span>${pageCount} стр.</span></div>
@@ -559,8 +580,8 @@ function openComicDetail(id){
     <div class="detail-tags"><span class="tag ${sc}">${sm[comic.status]||comic.status}</span>${genres.map(g=>`<span class="tag tag-genre">${g}</span>`).join('')}</div>
     <div class="detail-desc">${comic.desc||'<em style="color:var(--text3)">Описание не добавлено</em>'}</div>
     <div class="detail-actions">
-      <button class="btn btn-accent btn-sm" onclick="openAddChapterModal()">+ Глава</button>
-      <button class="btn btn-ghost btn-sm" onclick="openEditComicModal(${id})">✏️ Редактировать</button>
+      ${isAdmin?`<button class="btn btn-accent btn-sm" onclick="openAddChapterModal()">+ Глава</button>`:''}
+      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openEditComicModal(${id})">✏️ Редактировать</button>`:''}
       ${(comic.chapters||[]).length?`<button class="btn btn-ghost btn-sm" onclick="openReader(${id},0)">📖 Читать</button>`:''}
     </div></div>`;
   renderChapters(id);prevPage=currentPage;showPage('detail');
@@ -580,8 +601,8 @@ function renderChapters(comicId){
       </div>
       <div class="chapter-actions">
         <button class="btn btn-ghost btn-sm" onclick="openReader(${comicId},${i})">📖</button>
-        <button class="btn btn-ghost btn-sm" onclick="openEditChapterModal(${ch.id})">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDeleteChapter(${ch.id})">🗑️</button>
+        ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openEditChapterModal(${ch.id})">✏️</button>`:''}
+        ${isAdmin?`<button class="btn btn-danger btn-sm" onclick="confirmDeleteChapter(${ch.id})">🗑️</button>`:''}
       </div>`;
     list.appendChild(item);
   });
@@ -699,7 +720,7 @@ function confirmDeleteComic(id){
   const comic=DB.comics.find(c=>c.id===id);
   document.getElementById('confirm-title').textContent='Удалить комикс?';
   document.getElementById('confirm-text').textContent=`Удалить "${comic.name}"? Всё будет удалено.`;
-  document.getElementById('confirm-ok-btn').onclick=()=>{DB.comics=DB.comics.filter(c=>c.id!==id);save();closeModal('modal-confirm');if(currentPage==='detail')showPage('catalog');renderCatalog();renderDrafts();updateStats();showToast('Удалено','success')};
+  document.getElementById('confirm-ok-btn').onclick=async()=>{await deleteComicFromDB(id);closeModal('modal-confirm');if(currentPage==='detail')showPage('catalog');renderCatalog();renderDrafts();updateStats();showToast('Удалено','success')};
   openModal('modal-confirm');
 }
 function confirmDeleteChapter(chapterId){
@@ -973,6 +994,50 @@ document.addEventListener('keydown',e=>{
   if(!e.ctrlKey){if(e.key==='b')setTool('pen');if(e.key==='e')setTool('eraser');if(e.key==='l')setTool('line');if(e.key==='f')setTool('fill')}
 });
 
+// ===== FIREBASE =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBDEjPPTEAxSggropnQLE8xOEs1ciZ9x8M",
+  authDomain: "comicshubserver-fd0ba.firebaseapp.com",
+  projectId: "comicshubserver-fd0ba",
+  storageBucket: "comicshubserver-fd0ba.firebasestorage.app",
+  messagingSenderId: "57190112016",
+  appId: "1:57190112016:web:06ee2e98256d04464ae395"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db_fire = getFirestore(fbApp);
+
+// Слушаем изменения в реальном времени
+onSnapshot(collection(db_fire, 'comics'), (snapshot) => {
+  DB.comics = [];
+  snapshot.forEach(doc => DB.comics.push(doc.data()));
+  DB.comics.sort((a,b) => b.createdAt - a.createdAt);
+  if(currentPage==='catalog') renderCatalog();
+  if(currentPage==='drafts') renderDrafts();
+  if(currentPage==='detail' && currentComicId) {
+    const comic = DB.comics.find(c=>c.id===currentComicId);
+    if(comic) renderChapters(currentComicId);
+  }
+  updateStats();
+});
+
+async function save(){
+  // сохраняем все комиксы в Firestore
+  for(const comic of DB.comics){
+    await setDoc(doc(db_fire,'comics',String(comic.id)), comic);
+  }
+  localStorage.setItem('comicshub_db', JSON.stringify(DB));
+}
+
+async function deleteComicFromDB(id){
+  await deleteDoc(doc(db_fire,'comics',String(id)));
+  DB.comics = DB.comics.filter(c=>c.id!==id);
+  localStorage.setItem('comicshub_db', JSON.stringify(DB));
+}
+
 // UTILS
 function openModal(id){document.getElementById(id).classList.remove('hidden')}
 function closeModal(id){document.getElementById(id).classList.add('hidden')}
@@ -989,10 +1054,67 @@ function showToast(msg,type='success'){
   t.className='toast toast-'+type+' show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+// ===== ADMIN =====
+const ADMIN_PASS = 'ComicsHubIlovebooks';
+let isAdmin = sessionStorage.getItem('ch_admin') === '1';
+
+function applyAdminState(){
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.getElementById('admin-btn-label').textContent=isAdmin?'Выйти из админа':'Права Администратора';
+  document.getElementById('admin-btn').style.background=isAdmin?'rgba(76,175,125,0.15)':'';
+  document.getElementById('admin-btn').style.color=isAdmin?'var(--green)':'';
+  document.getElementById('admin-btn').style.borderColor=isAdmin?'rgba(76,175,125,0.3)':'var(--border)';
+  // перерендерить карточки чтобы скрыть/показать кнопки редактирования
+  if(currentPage==='catalog')renderCatalog();
+  if(currentPage==='drafts')renderDrafts();
+  if(currentPage==='detail'&&currentComicId)renderChapters(currentComicId);
+}
+
+function toggleAdmin(){
+  if(isAdmin){
+    isAdmin=false;
+    sessionStorage.removeItem('ch_admin');
+    applyAdminState();
+    showToast('Вышел из режима администратора','success');
+    if(currentPage==='ai')showPage('catalog');
+  } else {
+    openModal('modal-admin');
+    setTimeout(()=>document.getElementById('admin-pass-input').focus(),100);
+  }
+}
+
+function submitAdminPass(){
+  const val=document.getElementById('admin-pass-input').value;
+  if(val===ADMIN_PASS){
+    isAdmin=true;
+    sessionStorage.setItem('ch_admin','1');
+    closeModal('modal-admin');
+    document.getElementById('admin-pass-input').value='';
+    applyAdminState();
+    showToast('Добро пожаловать, Администратор! 👑','success');
+  } else {
+    document.getElementById('admin-pass-input').style.borderColor='var(--red)';
+    document.getElementById('admin-pass-input').value='';
+    showToast('Неверный пароль!','error');
+    setTimeout(()=>document.getElementById('admin-pass-input').style.borderColor='',800);
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('modal-admin')&&!document.getElementById('modal-admin').classList.contains('hidden')){
+    submitAdminPass();
+  }
+});
+
+// Патч makeComicCard — скрываем кнопки редактирования для не-админов
+const _origMakeComicCard = makeComicCard;
+// уже встроено через isAdmin проверку ниже
+
 if(!DB.comics.length){
   DB.comics.push({id:DB.nextId++,name:'Пример комикса',genre:'Фэнтези',desc:'Удали или отредактируй.',status:'published',emoji:'⚔️',color:'#1a0a2e',cover:null,chapters:[{id:DB.nextId++,name:'Начало',num:1,pages:[],createdAt:Date.now()}],createdAt:Date.now()});
   save();
 }
+applyAdminState();
 renderCatalog();updateStats();
 </script>
 </body>
