@@ -503,7 +503,9 @@ select option{background:#1e1e1e}
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
 let DB=JSON.parse(localStorage.getItem('comicshub_db')||'null')||{comics:[],nextId:1};
 let currentPage='catalog',prevPage='catalog',currentComicId=null,editingComicId=null,editingChapterId=null;
 let readerComicId=null,readerChapterIdx=0,pendingChapterPages=[],searchQuery='',activeGenre='all';
@@ -995,9 +997,6 @@ document.addEventListener('keydown',e=>{
 });
 
 // ===== FIREBASE =====
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyBDEjPPTEAxSggropnQLE8xOEs1ciZ9x8M",
   authDomain: "comicshubserver-fd0ba.firebaseapp.com",
@@ -1007,13 +1006,13 @@ const firebaseConfig = {
   appId: "1:57190112016:web:06ee2e98256d04464ae395"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db_fire = getFirestore(fbApp);
+firebase.initializeApp(firebaseConfig);
+const db_fire = firebase.firestore();
 
 // Слушаем изменения в реальном времени
-onSnapshot(collection(db_fire, 'comics'), (snapshot) => {
+db_fire.collection('comics').onSnapshot((snapshot) => {
   DB.comics = [];
-  snapshot.forEach(doc => DB.comics.push(doc.data()));
+  snapshot.forEach(d => DB.comics.push(d.data()));
   DB.comics.sort((a,b) => b.createdAt - a.createdAt);
   if(currentPage==='catalog') renderCatalog();
   if(currentPage==='drafts') renderDrafts();
@@ -1025,15 +1024,14 @@ onSnapshot(collection(db_fire, 'comics'), (snapshot) => {
 });
 
 async function save(){
-  // сохраняем все комиксы в Firestore
   for(const comic of DB.comics){
-    await setDoc(doc(db_fire,'comics',String(comic.id)), comic);
+    await db_fire.collection('comics').doc(String(comic.id)).set(comic);
   }
   localStorage.setItem('comicshub_db', JSON.stringify(DB));
 }
 
 async function deleteComicFromDB(id){
-  await deleteDoc(doc(db_fire,'comics',String(id)));
+  await db_fire.collection('comics').doc(String(id)).delete();
   DB.comics = DB.comics.filter(c=>c.id!==id);
   localStorage.setItem('comicshub_db', JSON.stringify(DB));
 }
