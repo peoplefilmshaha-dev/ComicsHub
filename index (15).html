@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComicsHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#f0ede8;--text2:#9b9690;--text3:#5a5752;--accent:#f5c842;--accent2:#e8a020;--red:#e8503a;--green:#4caf7d;--blue:#5b8dee;--r:10px;--r2:16px}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-text{font-family:'Bangers',cursive;font-size:28px;letter-spacing:2px;color:var(--accent);text-shadow:3px 3px 0 #000;line-height:1}
+.logo-sub{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-section{padding:12px 16px 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;border-radius:8px;margin:1px 8px;color:var(--text2);font-size:14px;transition:background .15s,color .15s;user-select:none}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(245,200,66,0.12);color:var(--accent);font-weight:500}
+.nav-icon{font-size:18px;width:20px;text-align:center}
+.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border)}
+.stats-row{display:flex;gap:16px}
+.stat-item{display:flex;flex-direction:column;gap:2px}
+.stat-val{font-size:16px;font-weight:600;color:var(--accent)}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+.main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px}
+.topbar-title{font-family:'Bangers',cursive;font-size:22px;letter-spacing:1px;color:var(--text);flex:1}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px;width:220px;transition:border-color .2s}
+.search-box:focus-within{border-color:var(--accent)}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:14px;width:100%}
+.search-box input::placeholder{color:var(--text3)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn-accent{background:var(--accent);color:#000}
+.btn-accent:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg4);color:var(--text)}
+.btn-danger{background:rgba(232,80,58,0.15);color:var(--red);border:1px solid rgba(232,80,58,0.25)}
+.btn-danger:hover{background:rgba(232,80,58,0.25)}
+.btn-sm{padding:5px 11px;font-size:13px}
+.page{display:none;padding:28px;animation:fadeIn .2s}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-family:'Bangers',cursive;font-size:26px;letter-spacing:1px}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-genre{background:rgba(91,141,238,0.15);color:var(--blue);border:1px solid rgba(91,141,238,0.2)}
+.tag-status-pub{background:rgba(76,175,125,0.15);color:var(--green);border:1px solid rgba(76,175,125,0.2)}
+.tag-status-draft{background:rgba(245,200,66,0.12);color:var(--accent);border:1px solid rgba(245,200,66,0.2)}
+.comics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px}
+.comic-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
+.comic-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 32px rgba(0,0,0,0.5)}
+.comic-cover-gradient{width:100%;aspect-ratio:2/3;display:flex;align-items:flex-end;padding:12px;font-family:'Bangers',cursive;font-size:20px;letter-spacing:1px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.8);line-height:1.1;position:relative}
+.comic-card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.comic-card:hover .comic-card-actions{opacity:1}
+.card-action-btn{width:30px;height:30px;border-radius:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.card-action-btn.del:hover{background:rgba(232,80,58,0.8)}
+.comic-info{padding:10px 12px 12px}
+.comic-title{font-weight:600;font-size:14px;line-height:1.3;margin-bottom:5px}
+.comic-meta{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.draft-badge{position:absolute;top:8px;left:8px;background:rgba(245,200,66,0.9);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;animation:slideModal .2s}
+@keyframes slideModal{from{transform:scale(0.95) translateY(10px)}to{transform:none}}
+.modal.wide{max-width:900px}
+.modal.fullscreen{max-width:98vw;width:98vw;max-height:96vh;height:96vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-family:'Bangers',cursive;font-size:24px;letter-spacing:1px}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:var(--bg4);color:var(--text)}
+.modal-body{padding:20px 24px 24px}
+.form-row{margin-bottom:16px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;padding:9px 12px;outline:none;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+select option{background:#1e1e1e}
+.cover-upload{border:2px dashed var(--border2);border-radius:var(--r2);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+.cover-upload:hover{border-color:var(--accent);background:rgba(245,200,66,0.04)}
+.cover-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.cover-preview{width:90px;height:135px;object-fit:cover;border-radius:8px;margin:0 auto 8px;display:block;border:1px solid var(--border2)}
+.cover-emoji{font-size:36px;margin-bottom:8px}
+.upload-hint{font-size:13px;color:var(--text3)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.chapters-list{display:flex;flex-direction:column;gap:8px}
+.chapter-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
+.chapter-item:hover{border-color:var(--border2)}
+.chapter-num{font-family:'Bangers',cursive;font-size:20px;color:var(--accent);min-width:36px;text-align:center}
+.chapter-info{flex:1}
+.chapter-title-text{font-weight:500;font-size:14px}
+.chapter-meta{font-size:12px;color:var(--text3);margin-top:2px;display:flex;gap:12px}
+.chapter-actions{display:flex;gap:6px}
+.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:14px}
+.page-thumb{aspect-ratio:2/3;background:var(--bg4);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s}
+.page-thumb:hover{border-color:var(--border2)}
+.page-thumb img{width:100%;height:100%;object-fit:cover}
+.page-thumb .page-num{position:absolute;bottom:4px;right:5px;font-size:10px;background:rgba(0,0,0,0.8);padding:1px 5px;border-radius:4px;color:var(--text2)}
+.page-thumb .page-del{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(232,80,58,0.85);color:#fff;border-radius:5px;font-size:12px;display:none;align-items:center;justify-content:center;cursor:pointer}
+.page-thumb:hover .page-del{display:flex}
+.add-page-btn{aspect-ratio:2/3;background:var(--bg3);border:2px dashed var(--border2);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text3);transition:border-color .15s,color .15s,background .15s;position:relative;overflow:hidden}
+.add-page-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(245,200,66,0.04)}
+.add-page-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.add-page-plus{font-size:28px;line-height:1}
+#page-reader{padding:0;background:#000}
+.reader-topbar{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 20px;display:flex;align-items:center;gap:14px}
+.reader-pages{max-width:800px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:4px}
+.reader-page-img{width:100%;display:block;border-radius:4px}
+.reader-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:24px}
+.chapter-select-bar{display:flex;gap:8px;flex:1;overflow-x:auto;padding-bottom:2px}
+.chap-btn{white-space:nowrap;padding:5px 12px;border-radius:20px;font-size:13px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s}
+.chap-btn:hover{border-color:var(--border2);color:var(--text)}
+.chap-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.detail-header{display:flex;gap:28px;margin-bottom:28px;align-items:flex-start}
+.detail-cover{width:160px;min-width:160px;aspect-ratio:2/3;border-radius:var(--r2);object-fit:cover;background:var(--bg3);border:1px solid var(--border)}
+.detail-cover-placeholder{width:160px;min-width:160px;aspect-ratio:2/3;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:56px}
+.detail-info{flex:1}
+.detail-title{font-family:'Bangers',cursive;font-size:36px;letter-spacing:2px;line-height:1.1;margin-bottom:8px}
+.detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.detail-desc{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:16px;max-width:520px}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:56px;margin-bottom:12px}
+.empty-title{font-family:'Bangers',cursive;font-size:26px;letter-spacing:1px;color:var(--text2);margin-bottom:8px}
+.empty-text{font-size:14px;margin-bottom:20px}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);padding:12px 18px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);pointer-events:none;max-width:320px}
+.toast.show{transform:none;opacity:1}
+.toast-success{border-left:3px solid var(--green)}
+.toast-error{border-left:3px solid var(--red)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#333}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.text-muted{color:var(--text3);font-size:13px}
+
+/* AI PAGE */
+#page-ai{padding:0}
+.ai-layout{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 57px)}
+.ai-panel{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.ai-panel-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ai-panel-title{font-family:'Bangers',cursive;font-size:20px;letter-spacing:1px;margin-bottom:2px}
+.ai-panel-sub{font-size:12px;color:var(--text3)}
+.ai-panel-body{flex:1;overflow-y:auto;padding:16px 20px}
+.ai-panel-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
+.prompt-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;padding:10px 12px;outline:none;resize:none;min-height:90px;line-height:1.5;transition:border-color .2s}
+.prompt-input:focus{border-color:var(--accent)}
+.setting-row{margin-bottom:14px}
+.setting-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px}
+.style-chips{display:flex;flex-wrap:wrap;gap:6px}
+.style-chip{padding:4px 10px;border-radius:20px;font-size:12px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s;user-select:none}
+.style-chip:hover{border-color:var(--border2);color:var(--text)}
+.style-chip.active{background:rgba(245,200,66,0.15);border-color:var(--accent);color:var(--accent)}
+.gen-btn{width:100%;padding:12px;font-size:15px;font-weight:600;background:var(--accent);color:#000;border:none;border-radius:var(--r);cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.gen-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.gen-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.quick-prompts{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.quick-prompt{padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;text-align:left;font-family:inherit}
+.quick-prompt:hover{border-color:var(--accent);color:var(--accent);background:rgba(245,200,66,0.05)}
+.ai-results{flex:1;background:var(--bg);overflow-y:auto;padding:20px}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.result-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .2s,transform .2s}
+.result-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.result-img{width:100%;display:block;background:var(--bg3);cursor:pointer}
+.result-actions{padding:8px 10px;display:flex;gap:6px;flex-wrap:wrap}
+.gen-placeholder{background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3);font-size:13px;min-height:200px}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text3);text-align:center;gap:12px}
+.count-row{display:flex;align-items:center;gap:8px}
+.count-btn{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;transition:all .15s}
+.count-btn:hover{border-color:var(--border2)}
+
+/* EDITOR */
+#page-editor{padding:0}
+.editor-page{height:calc(100vh - 57px);display:flex;flex-direction:column}
+.editor-toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.tool-group{display:flex;align-items:center;gap:6px;padding-right:10px;border-right:1px solid var(--border)}
+.tool-group:last-child{border-right:none;margin-left:auto}
+.tool-btn{width:34px;height:34px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0}
+.tool-btn:hover{border-color:var(--border2);color:var(--text)}
+.tool-btn.active{background:rgba(245,200,66,0.15);border-color:var(--accent);color:var(--accent)}
+.tlabel{font-size:12px;color:var(--text3)}
+.tslider{width:80px;accent-color:var(--accent);cursor:pointer}
+.tval{font-size:12px;color:var(--text2);min-width:24px}
+.color-dot{width:28px;height:28px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;padding:0;overflow:hidden;flex-shrink:0}
+.editor-wrap{flex:1;overflow:hidden;position:relative;background:#0a0a0a;display:flex;align-items:center;justify-content:center}
+#refCanvas{position:absolute;top:0;left:0;pointer-events:none;image-rendering:pixelated}
+#drawCanvas{position:absolute;top:0;left:0;touch-action:none}
+.ed-status{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--text3);pointer-events:none;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">ComicsHub</div>
+    <div class="logo-sub">Мои комиксы</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Навигация</div>
+    <div class="nav-item active" onclick="showPage('catalog')" data-page="catalog"><span class="nav-icon">📚</span> Каталог</div>
+    <div class="nav-item" onclick="showPage('drafts')" data-page="drafts"><span class="nav-icon">✏️</span> Черновики</div>
+    <div class="nav-section">Инструменты</div>
+    <div class="nav-item" onclick="showPage('ai')" data-page="ai"><span class="nav-icon">🤖</span> ИИ Генератор</div>
+    <div class="nav-item" onclick="showPage('editor')" data-page="editor"><span class="nav-icon">🎨</span> Редактор обводки</div>
+    <div class="nav-item" onclick="openAddComicModal()"><span class="nav-icon">➕</span> Новый комикс</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="stats-row">
+      <div class="stat-item"><span class="stat-val" id="stat-comics">0</span><span class="stat-label">комиксов</span></div>
+      <div class="stat-item"><span class="stat-val" id="stat-chapters">0</span><span class="stat-label">глав</span></div>
+      <div class="stat-item"><span class="stat-val" id="stat-pages">0</span><span class="stat-label">страниц</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Каталог</div>
+    <div class="search-box"><span>🔍</span><input type="text" placeholder="Поиск..." id="search-input" oninput="filterComics()"/></div>
+    <button class="btn btn-accent" onclick="openAddComicModal()">+ Новый комикс</button>
+  </div>
+
+  <!-- CATALOG -->
+  <div class="page active" id="page-catalog">
+    <div style="margin-bottom:20px;display:flex;gap:8px;flex-wrap:wrap" id="genre-filter-bar"></div>
+    <div id="catalog-grid" class="comics-grid"></div>
+    <div id="catalog-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">📖</div><div class="empty-title">Нет опубликованных комиксов</div>
+      <div class="empty-text">Создай первый!</div>
+      <button class="btn btn-accent" onclick="openAddComicModal()">+ Создать</button>
+    </div>
+  </div>
+
+  <!-- DRAFTS -->
+  <div class="page" id="page-drafts">
+    <div id="drafts-grid" class="comics-grid"></div>
+    <div id="drafts-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">✏️</div><div class="empty-title">Нет черновиков</div>
+      <button class="btn btn-accent" onclick="openAddComicModal()">+ Создать</button>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="page" id="page-detail">
+    <button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:20px">← Назад</button>
+    <div class="detail-header" id="detail-header"></div>
+    <div class="divider"></div>
+    <div class="section-header">
+      <div class="section-title">Главы</div>
+      <button class="btn btn-accent btn-sm" onclick="openAddChapterModal()">+ Добавить главу</button>
+    </div>
+    <div class="chapters-list" id="detail-chapters"></div>
+    <div id="detail-no-chapters" class="empty-state" style="display:none;padding:30px 0">
+      <div class="empty-icon">📄</div><div class="empty-title">Нет глав</div>
+    </div>
+  </div>
+
+  <!-- READER -->
+  <div class="page" id="page-reader" style="padding:0;background:#000">
+    <div class="reader-topbar">
+      <button class="btn btn-ghost btn-sm" onclick="closeReader()">← Выйти</button>
+      <div style="font-weight:600;font-size:15px;flex:1" id="reader-title"></div>
+      <div class="chapter-select-bar" id="reader-chapter-bar"></div>
+    </div>
+    <div class="reader-pages" id="reader-pages"></div>
+    <div class="reader-nav">
+      <button class="btn btn-ghost" id="prev-chap-btn" onclick="readerPrevChap()">← Пред.</button>
+      <span class="text-muted" id="reader-chap-label"></span>
+      <button class="btn btn-ghost" id="next-chap-btn" onclick="readerNextChap()">След. →</button>
+    </div>
+  </div>
+
+  <!-- AI GENERATOR -->
+  <div class="page" id="page-ai" style="padding:0">
+    <div class="ai-layout">
+      <div class="ai-panel">
+        <div class="ai-panel-header">
+          <div class="ai-panel-title">🤖 ИИ Генератор</div>
+          <div class="ai-panel-sub">Pollinations.ai · Бесплатно · Без ограничений</div>
+        </div>
+        <div class="ai-panel-body">
+          <div class="setting-row">
+            <div class="setting-label">Стиль рисовки</div>
+            <div class="style-chips" id="style-chips">
+              <div class="style-chip active" data-val="comic book art, cel shading, bold outlines, dynamic">Комикс</div>
+              <div class="style-chip" data-val="manga style, black and white, detailed lineart, screentone">Манга</div>
+              <div class="style-chip" data-val="dark gritty comic art, noir, heavy shadows, Frank Miller style">Тёмный</div>
+              <div class="style-chip" data-val="Marvel superhero comic art, dynamic action pose, vibrant colors, Jack Kirby">Супергерои</div>
+              <div class="style-chip" data-val="anime style, detailed, colorful, Studio Ghibli inspired">Аниме</div>
+              <div class="style-chip" data-val="realistic digital painting, cinematic lighting, photorealistic">Реализм</div>
+              <div class="style-chip" data-val="cartoon style, bold outlines, flat colors, Disney animated">Мультфильм</div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Формат картинки</div>
+            <div class="style-chips" id="ratio-chips">
+              <div class="style-chip active" data-w="768" data-h="1024">Портрет 3:4</div>
+              <div class="style-chip" data-w="1024" data-h="768">Пейзаж 4:3</div>
+              <div class="style-chip" data-w="1024" data-h="1024">Квадрат 1:1</div>
+              <div class="style-chip" data-w="512" data-h="1024">Страница 1:2</div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Кол-во картинок</div>
+            <div class="count-row">
+              <button class="count-btn" onclick="changeCount(-1)">−</button>
+              <span style="font-size:14px;font-weight:600;min-width:20px;text-align:center" id="gen-count-val">1</span>
+              <button class="count-btn" onclick="changeCount(1)">+</button>
+              <span style="font-size:12px;color:var(--text3)">макс 4</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">🕷️ Быстрые промпты</div>
+            <div class="quick-prompts">
+              <button class="quick-prompt" onclick="qp(this)">Spider-Man swinging through New York City at night, rain, dramatic lighting</button>
+              <button class="quick-prompt" onclick="qp(this)">Spider-Man vs Venom brutal street fight, dark alley, intense action, blood</button>
+              <button class="quick-prompt" onclick="qp(this)">Green Goblin flying on glider over burning city, cackling, menacing</button>
+              <button class="quick-prompt" onclick="qp(this)">Spider-Man mask cracked, exhausted, standing up after beating, rain, determination</button>
+              <button class="quick-prompt" onclick="qp(this)">Doctor Octopus tentacles smashing laboratory, chaos and destruction</button>
+              <button class="quick-prompt" onclick="qp(this)">Sinister Six assembled in darkness, all villains ready for battle</button>
+              <button class="quick-prompt" onclick="qp(this)">Spider-Man close-up epic splash page, web shooting, city background</button>
+              <button class="quick-prompt" onclick="qp(this)">Shocker robbing bank, police cars outside, electric blast, gritty urban</button>
+            </div>
+          </div>
+        </div>
+        <div class="ai-panel-footer">
+          <textarea class="prompt-input" id="ai-prompt" placeholder="Опиши что нарисовать... Можно по-русски или по-английски!" rows="3"></textarea>
+          <button class="gen-btn" id="gen-btn" onclick="generateImages()">
+            <span id="gen-btn-text">🎨 Генерировать</span>
+          </button>
+        </div>
+      </div>
+      <div class="ai-results" id="ai-results">
+        <div class="ai-empty" id="ai-empty">
+          <div style="font-size:64px;opacity:0.3">🎨</div>
+          <div style="font-family:'Bangers',cursive;font-size:24px;letter-spacing:1px;color:var(--text2)">Жди крутых картинок!</div>
+          <div style="font-size:13px;max-width:280px;line-height:1.6">Выбери стиль, напиши промпт и жми Генерировать.<br>Бесплатно, без регистрации, без ограничений.</div>
+        </div>
+        <div class="results-grid" id="results-grid" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR PAGE -->
+  <div class="page" id="page-editor" style="padding:0">
+    <div class="editor-page">
+      <div class="editor-toolbar">
+        <div class="tool-group">
+          <div class="tlabel">Инструмент</div>
+          <button class="tool-btn active" id="tool-pen" onclick="setTool('pen')" title="Кисть (B)">✏️</button>
+          <button class="tool-btn" id="tool-eraser" onclick="setTool('eraser')" title="Ластик (E)">🧹</button>
+          <button class="tool-btn" id="tool-line" onclick="setTool('line')" title="Линия (L)">📏</button>
+          <button class="tool-btn" id="tool-fill" onclick="setTool('fill')" title="Заливка (F)">🪣</button>
+        </div>
+        <div class="tool-group">
+          <div class="tlabel">Размер</div>
+          <input type="range" class="tslider" id="brush-size" min="1" max="60" value="4" oninput="updateBrush()"/>
+          <span class="tval" id="brush-size-val">4px</span>
+        </div>
+        <div class="tool-group">
+          <div class="tlabel">Цвет</div>
+          <input type="color" class="color-dot" id="brush-color" value="#111111" oninput="updateBrush()"/>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:160px">
+            <div onclick="setColor('#111111')" style="width:20px;height:20px;background:#111;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#ffffff')" style="width:20px;height:20px;background:#fff;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#e8503a')" style="width:20px;height:20px;background:#e8503a;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#f5c842')" style="width:20px;height:20px;background:#f5c842;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#5b8dee')" style="width:20px;height:20px;background:#5b8dee;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#4caf7d')" style="width:20px;height:20px;background:#4caf7d;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#9b59b6')" style="width:20px;height:20px;background:#9b59b6;border-radius:4px;cursor:pointer"></div>
+            <div onclick="setColor('#e67e22')" style="width:20px;height:20px;background:#e67e22;border-radius:4px;cursor:pointer"></div>
+          </div>
+        </div>
+        <div class="tool-group">
+          <div class="tlabel">Подложка</div>
+          <input type="range" class="tslider" id="ref-opacity" min="0" max="100" value="30" oninput="updateRefOpacity()"/>
+          <span class="tval" id="ref-opacity-val">30%</span>
+          <button class="tool-btn" id="toggle-ref-btn" onclick="toggleRef()" title="Показать/скрыть подложку">👁</button>
+        </div>
+        <div class="tool-group">
+          <button class="tool-btn" onclick="undoDraw()" title="Отмена Ctrl+Z">↩️</button>
+          <button class="tool-btn" onclick="redoDraw()" title="Повтор Ctrl+Y">↪️</button>
+          <button class="tool-btn" onclick="clearDraw()" title="Очистить">🗑️</button>
+        </div>
+        <div class="tool-group">
+          <button class="btn btn-ghost btn-sm" onclick="loadRefImage()" title="Загрузить подложку">📁 Подложка</button>
+          <button class="btn btn-accent btn-sm" onclick="saveDrawing()">💾 Сохранить PNG</button>
+          <button class="btn btn-ghost btn-sm" onclick="addDrawingToChapter()">➕ В главу</button>
+        </div>
+      </div>
+      <div class="editor-wrap" id="editor-wrap">
+        <canvas id="refCanvas"></canvas>
+        <canvas id="drawCanvas" style="cursor:crosshair"></canvas>
+        <div class="ed-status" id="ed-status">Загрузи подложку (картинку от ИИ) и обводи!</div>
+      </div>
+    </div>
+    <input type="file" id="ref-file-input" accept="image/*" style="display:none" onchange="onRefFileLoad(event)"/>
+  </div>
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay hidden" id="modal-comic">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-comic-title">Новый комикс</div>
+      <button class="modal-close" onclick="closeModal('modal-comic')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div>
+          <div class="form-row"><label>Название *</label><input type="text" id="comic-name" placeholder="Название..."/></div>
+          <div class="form-row"><label>Жанр</label><input type="text" id="comic-genre" placeholder="Экшн, Фэнтези..."/></div>
+          <div class="form-row"><label>Статус</label>
+            <select id="comic-status">
+              <option value="draft">Черновик</option>
+              <option value="published">Опубликован</option>
+              <option value="ongoing">В процессе</option>
+              <option value="completed">Завершён</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Обложка</label>
+          <div class="cover-upload">
+            <input type="file" id="comic-cover-input" accept="image/*" onchange="previewCover(event)"/>
+            <div id="cover-preview-container"><div class="cover-emoji">🎨</div><div class="upload-hint">Нажми чтобы выбрать</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row"><label>Описание</label><textarea id="comic-desc" rows="3" placeholder="О чём комикс?"></textarea></div>
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom:0"><label>Эмодзи</label><input type="text" id="comic-emoji" placeholder="🦸" maxlength="2" style="width:80px"/></div>
+        <div class="form-row" style="margin-bottom:0"><label>Цвет фона</label><input type="color" id="comic-color" value="#1a1a2e" style="width:60px;height:36px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--border2);background:none"/></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-comic')">Отмена</button>
+        <button class="btn btn-accent" onclick="saveComic()">💾 Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-chapter">
+  <div class="modal wide">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-chapter-title">Новая глава</div>
+      <button class="modal-close" onclick="closeModal('modal-chapter')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom:0"><label>Название главы</label><input type="text" id="chapter-name" placeholder="Глава 1: Начало..."/></div>
+        <div class="form-row" style="margin-bottom:0"><label>Номер</label><input type="number" id="chapter-num" min="1" value="1"/></div>
+      </div>
+      <div style="margin-top:16px"><label>Страницы</label><div class="pages-grid" id="chapter-pages-grid"></div></div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-chapter')">Отмена</button>
+        <button class="btn btn-accent" onclick="saveChapter()">💾 Сохранить главу</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-confirm">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title" id="confirm-title">Удалить?</div>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-text" style="color:var(--text2);margin-bottom:20px;font-size:14px"></p>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Отмена</button>
+        <button class="btn btn-danger" id="confirm-ok-btn">Удалить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let DB=JSON.parse(localStorage.getItem('comicshub_db')||'null')||{comics:[],nextId:1};
+let currentPage='catalog',prevPage='catalog',currentComicId=null,editingComicId=null,editingChapterId=null;
+let readerComicId=null,readerChapterIdx=0,pendingChapterPages=[],searchQuery='',activeGenre='all';
+function save(){localStorage.setItem('comicshub_db',JSON.stringify(DB))}
+
+function showPage(name){
+  prevPage=currentPage;currentPage=name;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===name));
+  const titles={catalog:'Каталог',drafts:'Черновики',detail:'Комикс',reader:'Читалка',ai:'🤖 ИИ Генератор',editor:'🎨 Редактор обводки'};
+  document.getElementById('topbar-title').textContent=titles[name]||'';
+  if(name==='catalog')renderCatalog();
+  if(name==='drafts')renderDrafts();
+  if(name==='editor')initEditorPage();
+  updateStats();
+}
+function goBack(){showPage(prevPage==='detail'?'catalog':prevPage==='reader'?'detail':prevPage||'catalog')}
+
+function getGenres(){const g=new Set();DB.comics.filter(c=>c.status!=='draft').forEach(c=>{if(c.genre)c.genre.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>g.add(x))});return[...g]}
+function renderGenreFilter(){
+  const bar=document.getElementById('genre-filter-bar'),genres=getGenres();bar.innerHTML='';
+  if(!genres.length)return;
+  const all=document.createElement('button');all.className='btn btn-sm '+(activeGenre==='all'?'btn-accent':'btn-ghost');all.textContent='Все';all.onclick=()=>{activeGenre='all';renderCatalog()};bar.appendChild(all);
+  genres.forEach(g=>{const b=document.createElement('button');b.className='btn btn-sm '+(activeGenre===g?'btn-accent':'btn-ghost');b.textContent=g;b.onclick=()=>{activeGenre=g;renderCatalog()};bar.appendChild(b)});
+}
+function renderCatalog(){
+  renderGenreFilter();
+  let comics=DB.comics.filter(c=>c.status!=='draft');
+  if(searchQuery)comics=comics.filter(c=>c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  if(activeGenre!=='all')comics=comics.filter(c=>c.genre&&c.genre.toLowerCase().includes(activeGenre.toLowerCase()));
+  const grid=document.getElementById('catalog-grid'),empty=document.getElementById('catalog-empty');
+  grid.innerHTML='';
+  if(!comics.length){empty.style.display='';grid.style.display='none';return}
+  empty.style.display='none';grid.style.display='';
+  comics.forEach(c=>grid.appendChild(makeComicCard(c)));
+}
+function renderDrafts(){
+  let comics=DB.comics.filter(c=>c.status==='draft');
+  if(searchQuery)comics=comics.filter(c=>c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const grid=document.getElementById('drafts-grid'),empty=document.getElementById('drafts-empty');
+  grid.innerHTML='';
+  if(!comics.length){empty.style.display='';grid.style.display='none';return}
+  empty.style.display='none';grid.style.display='';
+  comics.forEach(c=>grid.appendChild(makeComicCard(c)));
+}
+function makeComicCard(comic){
+  const card=document.createElement('div');card.className='comic-card';
+  const chapCount=(comic.chapters||[]).length;
+  const pageCount=(comic.chapters||[]).reduce((a,c)=>a+(c.pages||[]).length,0);
+  let coverHTML=comic.cover?`<div style="position:relative;width:100%;aspect-ratio:2/3;overflow:hidden"><img src="${comic.cover}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>`:`<div class="comic-cover-gradient" style="background:linear-gradient(135deg,${comic.color||'#1a1a2e'} 0%,#000 100%);position:relative"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:52px">${comic.emoji||'📖'}</span>${comic.name}</div>`;
+  const badge=comic.status==='draft'?`<div class="draft-badge">ЧЕРНОВИК</div>`:'';
+  card.innerHTML=`<div style="position:relative">${coverHTML}${badge}</div>
+    <div class="comic-card-actions">
+      <button class="card-action-btn" onclick="event.stopPropagation();openEditComicModal(${comic.id})">✏️</button>
+      <button class="card-action-btn del" onclick="event.stopPropagation();confirmDeleteComic(${comic.id})">🗑️</button>
+    </div>
+    <div class="comic-info">
+      <div class="comic-title">${comic.name}</div>
+      <div class="comic-meta"><span>📄 ${chapCount} ${declChap(chapCount)}</span><span>·</span><span>${pageCount} стр.</span></div>
+    </div>`;
+  card.onclick=()=>openComicDetail(comic.id);return card;
+}
+function declChap(n){if(n%10===1&&n%100!==11)return'глава';if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return'главы';return'глав'}
+
+function openComicDetail(id){
+  currentComicId=id;const comic=DB.comics.find(c=>c.id===id);if(!comic)return;
+  const header=document.getElementById('detail-header');
+  let coverEl=comic.cover?`<img src="${comic.cover}" class="detail-cover"/>`:`<div class="detail-cover-placeholder" style="background:linear-gradient(135deg,${comic.color||'#1a1a2e'},#000)">${comic.emoji||'📖'}</div>`;
+  const sm={draft:'Черновик',published:'Опубликован',ongoing:'В процессе',completed:'Завершён'};
+  const sc=comic.status==='draft'?'tag-status-draft':'tag-status-pub';
+  const genres=comic.genre?comic.genre.split(',').map(g=>g.trim()).filter(Boolean):[];
+  header.innerHTML=`${coverEl}<div class="detail-info"><div class="detail-title">${comic.name}</div>
+    <div class="detail-tags"><span class="tag ${sc}">${sm[comic.status]||comic.status}</span>${genres.map(g=>`<span class="tag tag-genre">${g}</span>`).join('')}</div>
+    <div class="detail-desc">${comic.desc||'<em style="color:var(--text3)">Описание не добавлено</em>'}</div>
+    <div class="detail-actions">
+      <button class="btn btn-accent btn-sm" onclick="openAddChapterModal()">+ Глава</button>
+      <button class="btn btn-ghost btn-sm" onclick="openEditComicModal(${id})">✏️ Редактировать</button>
+      ${(comic.chapters||[]).length?`<button class="btn btn-ghost btn-sm" onclick="openReader(${id},0)">📖 Читать</button>`:''}
+    </div></div>`;
+  renderChapters(id);prevPage=currentPage;showPage('detail');
+}
+function renderChapters(comicId){
+  const comic=DB.comics.find(c=>c.id===comicId);
+  const list=document.getElementById('detail-chapters'),empty=document.getElementById('detail-no-chapters');
+  list.innerHTML='';
+  const chapters=(comic.chapters||[]).slice().sort((a,b)=>a.num-b.num);
+  if(!chapters.length){empty.style.display='';return}
+  empty.style.display='none';
+  chapters.forEach((ch,i)=>{
+    const item=document.createElement('div');item.className='chapter-item';
+    item.innerHTML=`<div class="chapter-num">${ch.num}</div>
+      <div class="chapter-info"><div class="chapter-title-text">${ch.name||'Глава '+ch.num}</div>
+        <div class="chapter-meta"><span>📄 ${(ch.pages||[]).length} стр.</span><span>${ch.createdAt?new Date(ch.createdAt).toLocaleDateString('ru-RU'):''}</span></div>
+      </div>
+      <div class="chapter-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openReader(${comicId},${i})">📖</button>
+        <button class="btn btn-ghost btn-sm" onclick="openEditChapterModal(${ch.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteChapter(${ch.id})">🗑️</button>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+function openReader(comicId,chapterIdx){readerComicId=comicId;readerChapterIdx=chapterIdx;renderReader();prevPage=currentPage;showPage('reader')}
+function renderReader(){
+  const comic=DB.comics.find(c=>c.id===readerComicId);
+  const chapters=(comic.chapters||[]).slice().sort((a,b)=>a.num-b.num);
+  const chapter=chapters[readerChapterIdx];
+  document.getElementById('reader-title').textContent=comic.name+(chapter?' — '+(chapter.name||'Глава '+chapter.num):'');
+  const bar=document.getElementById('reader-chapter-bar');bar.innerHTML='';
+  chapters.forEach((ch,i)=>{const b=document.createElement('button');b.className='chap-btn'+(i===readerChapterIdx?' active':'');b.textContent='Гл.'+ch.num;b.onclick=()=>{readerChapterIdx=i;renderReader()};bar.appendChild(b)});
+  const pagesEl=document.getElementById('reader-pages');pagesEl.innerHTML='';
+  if(chapter&&chapter.pages&&chapter.pages.length){
+    chapter.pages.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='reader-page-img';pagesEl.appendChild(img)});
+  } else {
+    pagesEl.innerHTML='<div class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">Страниц нет</div></div>';
+  }
+  document.getElementById('prev-chap-btn').disabled=readerChapterIdx===0;
+  document.getElementById('next-chap-btn').disabled=readerChapterIdx>=chapters.length-1;
+  document.getElementById('reader-chap-label').textContent=`Глава ${readerChapterIdx+1} из ${chapters.length}`;
+}
+function readerPrevChap(){if(readerChapterIdx>0){readerChapterIdx--;renderReader()}}
+function readerNextChap(){const comic=DB.comics.find(c=>c.id===readerComicId);if(readerChapterIdx<(comic.chapters||[]).length-1){readerChapterIdx++;renderReader()}}
+function closeReader(){showPage('detail')}
+
+function openAddComicModal(){
+  editingComicId=null;
+  document.getElementById('modal-comic-title').textContent='Новый комикс';
+  ['comic-name','comic-genre','comic-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('comic-status').value='draft';
+  document.getElementById('comic-emoji').value='📖';
+  document.getElementById('comic-color').value='#1a1a2e';
+  document.getElementById('cover-preview-container').innerHTML='<div class="cover-emoji">🎨</div><div class="upload-hint">Нажми чтобы выбрать</div>';
+  window._coverData=null;openModal('modal-comic');
+}
+function openEditComicModal(id){
+  const comic=DB.comics.find(c=>c.id===id);if(!comic)return;
+  editingComicId=id;
+  document.getElementById('modal-comic-title').textContent='Редактировать комикс';
+  document.getElementById('comic-name').value=comic.name;
+  document.getElementById('comic-genre').value=comic.genre||'';
+  document.getElementById('comic-desc').value=comic.desc||'';
+  document.getElementById('comic-status').value=comic.status||'draft';
+  document.getElementById('comic-emoji').value=comic.emoji||'📖';
+  document.getElementById('comic-color').value=comic.color||'#1a1a2e';
+  window._coverData=comic.cover||null;
+  document.getElementById('cover-preview-container').innerHTML=comic.cover?`<img src="${comic.cover}" class="cover-preview"/><div class="upload-hint" style="font-size:12px">Нажми чтобы изменить</div>`:'<div class="cover-emoji">🎨</div><div class="upload-hint">Нажми чтобы выбрать</div>';
+  openModal('modal-comic');
+}
+function previewCover(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();reader.onload=e=>{window._coverData=e.target.result;document.getElementById('cover-preview-container').innerHTML=`<img src="${e.target.result}" class="cover-preview"/><div class="upload-hint" style="font-size:12px">Нажми чтобы изменить</div>`};reader.readAsDataURL(file);
+}
+function saveComic(){
+  const name=document.getElementById('comic-name').value.trim();if(!name){showToast('Введи название!','error');return}
+  if(editingComicId){
+    const comic=DB.comics.find(c=>c.id===editingComicId);
+    Object.assign(comic,{name,genre:document.getElementById('comic-genre').value.trim(),desc:document.getElementById('comic-desc').value.trim(),status:document.getElementById('comic-status').value,emoji:document.getElementById('comic-emoji').value||'📖',color:document.getElementById('comic-color').value});
+    if(window._coverData)comic.cover=window._coverData;
+    showToast('Обновлено!','success');
+  } else {
+    DB.comics.unshift({id:DB.nextId++,name,genre:document.getElementById('comic-genre').value.trim(),desc:document.getElementById('comic-desc').value.trim(),status:document.getElementById('comic-status').value,emoji:document.getElementById('comic-emoji').value||'📖',color:document.getElementById('comic-color').value,cover:window._coverData||null,chapters:[],createdAt:Date.now()});
+    showToast('Комикс создан!','success');
+  }
+  save();closeModal('modal-comic');
+  if(currentPage==='catalog')renderCatalog();
+  if(currentPage==='drafts')renderDrafts();
+  if(currentPage==='detail'&&currentComicId){openComicDetail(currentComicId);showPage('detail')}
+  updateStats();
+}
+
+function openAddChapterModal(){
+  editingChapterId=null;pendingChapterPages=[];
+  const comic=DB.comics.find(c=>c.id===currentComicId);
+  document.getElementById('modal-chapter-title').textContent='Новая глава';
+  document.getElementById('chapter-name').value='';
+  document.getElementById('chapter-num').value=(comic.chapters||[]).length+1;
+  renderPagesGrid([]);openModal('modal-chapter');
+}
+function openEditChapterModal(chapterId){
+  const comic=DB.comics.find(c=>c.id===currentComicId);
+  const ch=(comic.chapters||[]).find(c=>c.id===chapterId);if(!ch)return;
+  editingChapterId=chapterId;pendingChapterPages=[...(ch.pages||[])];
+  document.getElementById('modal-chapter-title').textContent='Редактировать главу';
+  document.getElementById('chapter-name').value=ch.name||'';
+  document.getElementById('chapter-num').value=ch.num;
+  renderPagesGrid(pendingChapterPages);openModal('modal-chapter');
+}
+function renderPagesGrid(pages){
+  const grid=document.getElementById('chapter-pages-grid');grid.innerHTML='';
+  pages.forEach((p,i)=>{const thumb=document.createElement('div');thumb.className='page-thumb';thumb.innerHTML=`<img src="${p}"/><div class="page-num">${i+1}</div><div class="page-del" onclick="removePage(${i})">✕</div>`;grid.appendChild(thumb)});
+  const addBtn=document.createElement('div');addBtn.className='add-page-btn';addBtn.innerHTML=`<input type="file" accept="image/*" multiple onchange="addPages(event)"/><div class="add-page-plus">+</div><div>Добавить</div>`;grid.appendChild(addBtn);
+}
+function removePage(idx){pendingChapterPages.splice(idx,1);renderPagesGrid(pendingChapterPages)}
+function addPages(event){
+  const files=Array.from(event.target.files);let loaded=0;
+  files.forEach(file=>{const reader=new FileReader();reader.onload=e=>{pendingChapterPages.push(e.target.result);loaded++;if(loaded===files.length)renderPagesGrid(pendingChapterPages)};reader.readAsDataURL(file)});
+}
+function saveChapter(){
+  const comic=DB.comics.find(c=>c.id===currentComicId);if(!comic)return;
+  const name=document.getElementById('chapter-name').value.trim();
+  const num=parseInt(document.getElementById('chapter-num').value)||1;
+  if(editingChapterId){
+    const ch=comic.chapters.find(c=>c.id===editingChapterId);Object.assign(ch,{name,num,pages:[...pendingChapterPages]});showToast('Глава обновлена!','success');
+  } else {
+    comic.chapters=comic.chapters||[];comic.chapters.push({id:DB.nextId++,name,num,pages:[...pendingChapterPages],createdAt:Date.now()});showToast('Глава добавлена!','success');
+  }
+  save();closeModal('modal-chapter');renderChapters(currentComicId);
+  if(currentPage==='detail')openComicDetail(currentComicId);
+  updateStats();
+}
+function confirmDeleteComic(id){
+  const comic=DB.comics.find(c=>c.id===id);
+  document.getElementById('confirm-title').textContent='Удалить комикс?';
+  document.getElementById('confirm-text').textContent=`Удалить "${comic.name}"? Всё будет удалено.`;
+  document.getElementById('confirm-ok-btn').onclick=()=>{DB.comics=DB.comics.filter(c=>c.id!==id);save();closeModal('modal-confirm');if(currentPage==='detail')showPage('catalog');renderCatalog();renderDrafts();updateStats();showToast('Удалено','success')};
+  openModal('modal-confirm');
+}
+function confirmDeleteChapter(chapterId){
+  const comic=DB.comics.find(c=>c.id===currentComicId);const ch=comic.chapters.find(c=>c.id===chapterId);
+  document.getElementById('confirm-title').textContent='Удалить главу?';
+  document.getElementById('confirm-text').textContent=`Удалить "${ch.name||'Глава '+ch.num}"?`;
+  document.getElementById('confirm-ok-btn').onclick=()=>{comic.chapters=comic.chapters.filter(c=>c.id!==chapterId);save();closeModal('modal-confirm');renderChapters(currentComicId);updateStats();showToast('Глава удалена','success')};
+  openModal('modal-confirm');
+}
+
+// ===== AI GENERATOR =====
+let aiStyle='comic book art, cel shading, bold outlines, dynamic';
+let aiW=768,aiH=1024,genCount=1,isGenerating=false;
+document.querySelectorAll('#style-chips .style-chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#style-chips .style-chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');aiStyle=c.dataset.val}});
+document.querySelectorAll('#ratio-chips .style-chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#ratio-chips .style-chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');aiW=parseInt(c.dataset.w);aiH=parseInt(c.dataset.h)}});
+function changeCount(d){genCount=Math.max(1,Math.min(4,genCount+d));document.getElementById('gen-count-val').textContent=genCount}
+function qp(el){document.getElementById('ai-prompt').value=el.textContent.trim()}
+
+function generateImages(){
+  if(isGenerating)return;
+  const promptRaw=document.getElementById('ai-prompt').value.trim();
+  if(!promptRaw){showToast('Напиши промпт!','error');return}
+  const full=encodeURIComponent(`${promptRaw}, ${aiStyle}, high quality, detailed artwork`);
+  isGenerating=true;
+  const btn=document.getElementById('gen-btn');btn.disabled=true;
+  document.getElementById('gen-btn-text').textContent='⏳ Генерирую...';
+  document.getElementById('ai-empty').style.display='none';
+  document.getElementById('results-grid').style.display='grid';
+
+  for(let i=0;i<genCount;i++){
+    const seed=Math.floor(Math.random()*999999);
+    const url=`https://image.pollinations.ai/prompt/${full}?width=${aiW}&height=${aiH}&seed=${seed}&nologo=true&enhance=true&model=flux`;
+    const card=document.createElement('div');card.className='result-card';
+    card.innerHTML=`<div class="gen-placeholder"><div class="spinner"></div><div>Рисую... (~15 сек)</div></div>`;
+    document.getElementById('results-grid').prepend(card);
+
+    (function(card,imgUrl){
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      img.onload=function(){
+        // сохраняем как base64 чтобы потом можно было работать
+        const canvas=document.createElement('canvas');
+        canvas.width=img.naturalWidth||aiW;canvas.height=img.naturalHeight||aiH;
+        const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
+        let b64;
+        try{b64=canvas.toDataURL('image/jpeg',0.92)}catch(e){b64=imgUrl}
+        card.innerHTML=`<img class="result-img" src="${b64}" onclick="openEditorWithImage('${b64}')"/>
+          <div class="result-actions">
+            <button class="btn btn-accent btn-sm" onclick="openEditorWithImage('${b64}')">✏️ Обводить</button>
+            <button class="btn btn-ghost btn-sm" onclick="dlImg('${b64}')">⬇️ Скачать</button>
+            <button class="btn btn-ghost btn-sm" onclick="addImgToChap('${b64}')">➕ В главу</button>
+          </div>`;
+        checkDone();
+      };
+      img.onerror=function(){
+        // fallback — показываем img напрямую без canvas
+        card.innerHTML=`<img class="result-img" src="${imgUrl}" crossorigin="anonymous"
+          onload="imgDirectLoaded(this,'${imgUrl}')"
+          onerror="imgFailed(this)"/>
+          <div class="result-actions" id="actions-fallback" style="display:none">
+            <button class="btn btn-accent btn-sm" onclick="openEditorWithImage('${imgUrl}')">✏️ Обводить</button>
+            <button class="btn btn-ghost btn-sm" onclick="dlImg('${imgUrl}')">⬇️ Скачать</button>
+            <button class="btn btn-ghost btn-sm" onclick="addImgToChap('${imgUrl}')">➕ В главу</button>
+          </div>`;
+        checkDone();
+      };
+      img.src=imgUrl;
+    })(card, url);
+  }
+
+  let doneCount=0;
+  function checkDone(){
+    doneCount++;
+    if(doneCount>=genCount){
+      isGenerating=false;btn.disabled=false;
+      document.getElementById('gen-btn-text').textContent='🎨 Генерировать';
+      showToast('Готово! 🎨','success');
+    }
+  }
+}
+
+function imgDirectLoaded(imgEl, url){
+  // показываем кнопки под картинкой
+  const actions=imgEl.parentElement.querySelector('#actions-fallback');
+  if(actions)actions.style.display='flex';
+}
+function imgFailed(imgEl){
+  imgEl.parentElement.innerHTML=`<div class="gen-placeholder" style="color:var(--red)">
+    <div style="font-size:28px">❌</div>
+    <div style="text-align:center;padding:0 10px">Не удалось загрузить.<br>Попробуй ещё раз или смени промпт.</div>
+  </div>`;
+}
+
+function dlImg(url){
+  const a=document.createElement('a');a.href=url;a.download='comic_'+Date.now()+'.jpg';a.click();
+}
+function addImgToChap(url){
+  if(!currentComicId){showToast('Сначала открой комикс','error');return}
+  const comic=DB.comics.find(c=>c.id===currentComicId);
+  if(!comic||!(comic.chapters||[]).length){showToast('В комиксе нет глав','error');return}
+  const ch=comic.chapters[comic.chapters.length-1];
+  ch.pages=ch.pages||[];ch.pages.push(url);
+  save();updateStats();showToast('Добавлено в последнюю главу!','success');
+}
+function openEditorWithImage(url){
+  window._pendingRefUrl=url;showPage('editor');
+}
+
+// ===== EDITOR =====
+let drawCtx,refCtx,editorW=0,editorH=0;
+let currentTool='pen',isDrawing=false,lastX=0,lastY=0;
+let undoStack=[],redoStack=[],lineSnap=null,lineX=0,lineY=0,refVisible=true;
+let editorInited=false;
+
+function initEditorPage(){
+  const wrap=document.getElementById('editor-wrap');
+  const W=wrap.clientWidth||800, H=wrap.clientHeight||600;
+  editorW=W;editorH=H;
+  const refC=document.getElementById('refCanvas');
+  const drawC=document.getElementById('drawCanvas');
+  refC.width=W;refC.height=H;refC.style.width=W+'px';refC.style.height=H+'px';
+  drawC.width=W;drawC.height=H;drawC.style.width=W+'px';drawC.style.height=H+'px';
+  refCtx=refC.getContext('2d');
+  drawCtx=drawC.getContext('2d');
+  if(!editorInited){
+    drawCtx.fillStyle='#ffffff';drawCtx.fillRect(0,0,W,H);
+    undoStack=[drawCtx.getImageData(0,0,W,H)];
+    redoStack=[];
+    setupDrawEvents(drawC);
+    editorInited=true;
+  }
+  if(window._pendingRefUrl){
+    loadRefFromUrl(window._pendingRefUrl);
+    window._pendingRefUrl=null;
+  }
+  updateBrush();
+}
+
+function loadRefFromUrl(url){
+  const img=new Image();img.crossOrigin='anonymous';
+  img.onload=()=>{
+    refCtx.clearRect(0,0,editorW,editorH);
+    const scale=Math.min(editorW/img.width,editorH/img.height)*0.95;
+    const dw=img.width*scale,dh=img.height*scale;
+    const dx=(editorW-dw)/2,dy=(editorH-dh)/2;
+    const op=parseInt(document.getElementById('ref-opacity').value)/100;
+    refCtx.globalAlpha=op;refCtx.drawImage(img,dx,dy,dw,dh);refCtx.globalAlpha=1;
+    window._currentRefImg=img;
+    document.getElementById('ed-status').textContent='Подложка загружена! Обводи сверху.';
+  };
+  img.onerror=()=>showToast('Не удалось загрузить подложку','error');
+  img.src=url;
+}
+
+function loadRefImage(){document.getElementById('ref-file-input').click()}
+function onRefFileLoad(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();reader.onload=e=>loadRefFromUrl(e.target.result);reader.readAsDataURL(file);
+}
+
+function setupDrawEvents(canvas){
+  function getPos(e){const r=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return[src.clientX-r.left,src.clientY-r.top]}
+  canvas.addEventListener('mousedown',e=>{start(...getPos(e))});
+  canvas.addEventListener('mousemove',e=>{if(isDrawing)move(...getPos(e))});
+  canvas.addEventListener('mouseup',e=>{end(...getPos(e))});
+  canvas.addEventListener('mouseleave',()=>{if(isDrawing)isDrawing=false});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();start(...getPos(e))},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(isDrawing)move(...getPos(e))},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();const t=e.changedTouches[0];end(t.clientX-r.left,t.clientY-r.top)},{passive:false});
+}
+function start(x,y){
+  isDrawing=true;lastX=x;lastY=y;
+  if(currentTool==='fill'){floodFill(Math.round(x),Math.round(y));isDrawing=false;return}
+  if(currentTool==='line'){lineX=x;lineY=y;lineSnap=drawCtx.getImageData(0,0,editorW,editorH);return}
+  saveUndo();drawCtx.beginPath();drawCtx.moveTo(x,y);
+}
+function move(x,y){
+  if(currentTool==='pen'||currentTool==='eraser'){drawCtx.lineTo(x,y);drawCtx.stroke()}
+  else if(currentTool==='line'){drawCtx.putImageData(lineSnap,0,0);drawCtx.beginPath();drawCtx.moveTo(lineX,lineY);drawCtx.lineTo(x,y);drawCtx.stroke()}
+  lastX=x;lastY=y;
+}
+function end(x,y){if(currentTool==='line'&&isDrawing)saveUndo();isDrawing=false}
+
+function updateBrush(){
+  if(!drawCtx)return;
+  const size=parseInt(document.getElementById('brush-size').value);
+  const color=document.getElementById('brush-color').value;
+  document.getElementById('brush-size-val').textContent=size+'px';
+  drawCtx.lineWidth=size;drawCtx.lineCap='round';drawCtx.lineJoin='round';
+  if(currentTool==='eraser'){drawCtx.globalCompositeOperation='destination-out';drawCtx.strokeStyle='rgba(0,0,0,1)'}
+  else{drawCtx.globalCompositeOperation='source-over';drawCtx.strokeStyle=color}
+}
+function setTool(t){
+  currentTool=t;
+  document.querySelectorAll('.tool-btn[id^="tool-"]').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tool-'+t);if(el)el.classList.add('active');
+  updateBrush();
+  const cursors={pen:'crosshair',eraser:'cell',line:'crosshair',fill:'default'};
+  document.getElementById('drawCanvas').style.cursor=cursors[t]||'crosshair';
+}
+function setColor(c){document.getElementById('brush-color').value=c;if(currentTool==='eraser')setTool('pen');updateBrush()}
+
+function updateRefOpacity(){
+  const val=parseInt(document.getElementById('ref-opacity').value);
+  document.getElementById('ref-opacity-val').textContent=val+'%';
+  if(!refCtx||!window._currentRefImg)return;
+  refCtx.clearRect(0,0,editorW,editorH);
+  const img=window._currentRefImg;
+  const scale=Math.min(editorW/img.width,editorH/img.height)*0.95;
+  const dw=img.width*scale,dh=img.height*scale,dx=(editorW-dw)/2,dy=(editorH-dh)/2;
+  refCtx.globalAlpha=val/100;refCtx.drawImage(img,dx,dy,dw,dh);refCtx.globalAlpha=1;
+}
+function toggleRef(){
+  refVisible=!refVisible;
+  document.getElementById('refCanvas').style.opacity=refVisible?'1':'0';
+  document.getElementById('toggle-ref-btn').style.opacity=refVisible?'1':'0.4';
+}
+
+function floodFill(startX,startY){
+  const imgData=drawCtx.getImageData(0,0,editorW,editorH);
+  const data=imgData.data;
+  const color=hexToRgba(document.getElementById('brush-color').value);
+  const idx=(y,x)=>(y*editorW+x)*4;
+  const si=idx(startY,startX);
+  const tr=[data[si],data[si+1],data[si+2],data[si+3]];
+  if(tr[0]===color[0]&&tr[1]===color[1]&&tr[2]===color[2]&&tr[3]===color[3])return;
+  const stack=[[startX,startY]];
+  function match(i){return data[i]===tr[0]&&data[i+1]===tr[1]&&data[i+2]===tr[2]&&data[i+3]===tr[3]}
+  function paint(i){data[i]=color[0];data[i+1]=color[1];data[i+2]=color[2];data[i+3]=255}
+  saveUndo();
+  while(stack.length){
+    const[x,y]=stack.pop();
+    if(x<0||x>=editorW||y<0||y>=editorH)continue;
+    const i=idx(y,x);if(!match(i))continue;
+    paint(i);
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+  drawCtx.putImageData(imgData,0,0);
+}
+function hexToRgba(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return[r,g,b,255]}
+
+function saveUndo(){
+  undoStack.push(drawCtx.getImageData(0,0,editorW,editorH));
+  if(undoStack.length>40)undoStack.shift();
+  redoStack=[];
+}
+function undoDraw(){if(undoStack.length<=1)return;redoStack.push(undoStack.pop());drawCtx.putImageData(undoStack[undoStack.length-1],0,0)}
+function redoDraw(){if(!redoStack.length)return;const s=redoStack.pop();undoStack.push(s);drawCtx.putImageData(s,0,0)}
+function clearDraw(){saveUndo();drawCtx.fillStyle='#ffffff';drawCtx.fillRect(0,0,editorW,editorH)}
+
+function saveDrawing(){
+  const canvas=document.getElementById('drawCanvas');
+  const url=canvas.toDataURL('image/png');
+  const a=document.createElement('a');a.href=url;a.download='drawing_'+Date.now()+'.png';a.click();
+  showToast('Сохранено!','success');
+}
+function addDrawingToChapter(){
+  const canvas=document.getElementById('drawCanvas');
+  const url=canvas.toDataURL('image/png');
+  if(!currentComicId){showToast('Сначала открой комикс','error');return}
+  const comic=DB.comics.find(c=>c.id===currentComicId);
+  if(!comic||!(comic.chapters||[]).length){showToast('В комиксе нет глав','error');return}
+  const ch=comic.chapters[comic.chapters.length-1];ch.pages=ch.pages||[];ch.pages.push(url);
+  save();updateStats();showToast('Обводка добавлена в последнюю главу!','success');
+}
+
+document.addEventListener('keydown',e=>{
+  if(currentPage!=='editor')return;
+  if(e.ctrlKey&&e.key==='z')undoDraw();
+  if(e.ctrlKey&&e.key==='y')redoDraw();
+  if(!e.ctrlKey){if(e.key==='b')setTool('pen');if(e.key==='e')setTool('eraser');if(e.key==='l')setTool('line');if(e.key==='f')setTool('fill')}
+});
+
+// UTILS
+function openModal(id){document.getElementById(id).classList.remove('hidden')}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden')})});
+function filterComics(){searchQuery=document.getElementById('search-input').value;if(currentPage==='catalog')renderCatalog();if(currentPage==='drafts')renderDrafts()}
+function updateStats(){
+  document.getElementById('stat-comics').textContent=DB.comics.length;
+  document.getElementById('stat-chapters').textContent=DB.comics.reduce((a,c)=>a+(c.chapters||[]).length,0);
+  document.getElementById('stat-pages').textContent=DB.comics.reduce((a,c)=>a+(c.chapters||[]).reduce((b,ch)=>b+(ch.pages||[]).length,0),0);
+}
+let toastTimer;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');t.textContent=(type==='success'?'✅ ':'❌ ')+msg;
+  t.className='toast toast-'+type+' show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+if(!DB.comics.length){
+  DB.comics.push({id:DB.nextId++,name:'Пример комикса',genre:'Фэнтези',desc:'Удали или отредактируй.',status:'published',emoji:'⚔️',color:'#1a0a2e',cover:null,chapters:[{id:DB.nextId++,name:'Начало',num:1,pages:[],createdAt:Date.now()}],createdAt:Date.now()});
+  save();
+}
+renderCatalog();updateStats();
+</script>
+</body>
+</html>
