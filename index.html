@@ -206,7 +206,7 @@ select option{background:#1e1e1e}
     <div class="nav-section">Инструменты</div>
     <div class="nav-item" onclick="showPage('editor')" data-page="editor"><span class="nav-icon">🎨</span> Редактор обводки</div>
     <div class="nav-item admin-only" onclick="showPage('ai')" data-page="ai" style="display:none"><span class="nav-icon">🤖</span> ИИ Генератор</div>
-    <div class="nav-item admin-only" onclick="openAddComicModal()" style="display:none"><span class="nav-icon">➕</span> Новый комикс</div>
+    <div class="nav-item" onclick="openAddComicModal()"><span class="nav-icon">➕</span> Новый комикс</div>
     <div class="nav-section" style="margin-top:auto"></div>
     <div class="nav-item" id="admin-btn" onclick="toggleAdmin()" style="margin-top:8px;border:1px solid var(--border)"><span class="nav-icon">🔐</span> <span id="admin-btn-label">Права Администратора</span></div>
   </nav>
@@ -223,7 +223,7 @@ select option{background:#1e1e1e}
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Каталог</div>
     <div class="search-box"><span>🔍</span><input type="text" placeholder="Поиск..." id="search-input" oninput="filterComics()"/></div>
-    <button class="btn btn-accent admin-only" id="topbar-new-btn" onclick="openAddComicModal()" style="display:none">+ Новый комикс</button>
+    <button class="btn btn-accent" id="topbar-new-btn" onclick="openAddComicModal()">+ Новый комикс</button>
   </div>
 
   <!-- CATALOG -->
@@ -457,7 +457,14 @@ select option{background:#1e1e1e}
         <div class="form-row" style="margin-bottom:0"><label>Название главы</label><input type="text" id="chapter-name" placeholder="Глава 1: Начало..."/></div>
         <div class="form-row" style="margin-bottom:0"><label>Номер</label><input type="number" id="chapter-num" min="1" value="1"/></div>
       </div>
-      <div style="margin-top:16px"><label>Страницы</label><div class="pages-grid" id="chapter-pages-grid"></div></div>
+      <div style="margin-top:16px"><label>Страницы</label>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openChapterDrawEditor('blank')">✏️ Нарисовать страницу</button>
+          <button class="btn btn-ghost btn-sm" onclick="openChapterDrawEditor('upload')">📁 Загрузить и обвести</button>
+          <button class="btn btn-accent btn-sm admin-only" onclick="openChapterDrawEditor('ai')" style="display:none">🤖 ИИ + обвести</button>
+        </div>
+        <div class="pages-grid" id="chapter-pages-grid"></div>
+      </div>
       <div class="form-actions">
         <button class="btn btn-ghost" onclick="closeModal('modal-chapter')">Отмена</button>
         <button class="btn btn-accent" onclick="saveChapter()">💾 Сохранить главу</button>
@@ -478,6 +485,69 @@ select option{background:#1e1e1e}
         <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Отмена</button>
         <button class="btn btn-danger" id="confirm-ok-btn">Удалить</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAPTER DRAW EDITOR -->
+<div class="modal-overlay hidden" id="modal-draw-editor">
+  <div class="modal fullscreen" style="max-width:98vw;width:98vw;max-height:96vh;height:96vh;display:flex;flex-direction:column;overflow:hidden">
+    <div class="modal-header" style="padding:10px 16px;flex-shrink:0">
+      <div class="modal-title" id="draw-editor-title">✏️ Нарисовать страницу</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-accent btn-sm" onclick="savePageFromDrawEditor()">💾 Добавить страницу</button>
+        <button class="modal-close" onclick="closeModal('modal-draw-editor')">✕</button>
+      </div>
+    </div>
+    <!-- AI prompt row (admin only) -->
+    <div id="draw-editor-ai-row" style="display:none;padding:8px 16px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;align-items:center;flex-wrap:wrap" class="flex-row">
+      <input type="text" id="draw-editor-ai-prompt" placeholder="Промпт для ИИ..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;outline:none"/>
+      <button class="btn btn-accent btn-sm" onclick="genAIForEditor()">🎨 Сгенерировать подложку</button>
+      <span id="draw-editor-ai-status" style="font-size:12px;color:var(--text3)"></span>
+    </div>
+    <!-- Toolbar -->
+    <div class="editor-toolbar" style="flex-shrink:0">
+      <div class="tool-group">
+        <button class="tool-btn active" id="de-tool-pen" onclick="deTool('pen')" title="Кисть">✏️</button>
+        <button class="tool-btn" id="de-tool-eraser" onclick="deTool('eraser')" title="Ластик">🧹</button>
+        <button class="tool-btn" id="de-tool-line" onclick="deTool('line')" title="Линия">📏</button>
+        <button class="tool-btn" id="de-tool-fill" onclick="deTool('fill')" title="Заливка">🪣</button>
+      </div>
+      <div class="tool-group">
+        <span class="tlabel">Размер</span>
+        <input type="range" class="tslider" id="de-brush-size" min="1" max="60" value="4" oninput="deUpdateBrush()"/>
+        <span class="tval" id="de-brush-size-val">4px</span>
+      </div>
+      <div class="tool-group">
+        <span class="tlabel">Цвет</span>
+        <input type="color" class="color-dot" id="de-brush-color" value="#111111" oninput="deUpdateBrush()"/>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:160px">
+          <div onclick="deSetColor('#111111')" style="width:20px;height:20px;background:#111;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
+          <div onclick="deSetColor('#ffffff')" style="width:20px;height:20px;background:#fff;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
+          <div onclick="deSetColor('#e8503a')" style="width:20px;height:20px;background:#e8503a;border-radius:4px;cursor:pointer"></div>
+          <div onclick="deSetColor('#f5c842')" style="width:20px;height:20px;background:#f5c842;border-radius:4px;cursor:pointer"></div>
+          <div onclick="deSetColor('#5b8dee')" style="width:20px;height:20px;background:#5b8dee;border-radius:4px;cursor:pointer"></div>
+          <div onclick="deSetColor('#4caf7d')" style="width:20px;height:20px;background:#4caf7d;border-radius:4px;cursor:pointer"></div>
+          <div onclick="deSetColor('#9b59b6')" style="width:20px;height:20px;background:#9b59b6;border-radius:4px;cursor:pointer"></div>
+        </div>
+      </div>
+      <div class="tool-group">
+        <span class="tlabel">Подложка</span>
+        <input type="range" class="tslider" id="de-ref-opacity" min="0" max="100" value="30" oninput="deUpdateRef()"/>
+        <span class="tval" id="de-ref-opacity-val">30%</span>
+        <button class="tool-btn" onclick="deToggleRef()" id="de-toggle-ref">👁</button>
+      </div>
+      <div class="tool-group">
+        <button class="tool-btn" onclick="deUndo()" title="Отмена">↩️</button>
+        <button class="tool-btn" onclick="deClear()" title="Очистить">🗑️</button>
+        <button class="btn btn-ghost btn-sm" onclick="deLoadRef()" id="de-load-ref-btn">📁 Загрузить подложку</button>
+        <input type="file" id="de-ref-file" accept="image/*" style="display:none" onchange="deOnRefFile(event)"/>
+      </div>
+    </div>
+    <div style="flex:1;overflow:hidden;position:relative;background:#0a0a0a;display:flex;align-items:center;justify-content:center" id="de-wrap">
+      <canvas id="deRefCanvas" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+      <canvas id="deDrawCanvas" style="position:absolute;top:0;left:0;cursor:crosshair;touch-action:none"></canvas>
+      <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--text3);pointer-events:none" id="de-status">Рисуй!</div>
     </div>
   </div>
 </div>
@@ -1052,7 +1122,155 @@ function showToast(msg,type='success'){
   t.className='toast toast-'+type+' show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// ===== ADMIN =====
+// ===== CHAPTER DRAW EDITOR =====
+let deCtx, deRefCtx, deW=0, deH=0;
+let deTool_='pen', deDrawing=false, deLastX=0, deLastY=0;
+let deUndoStack=[], deLineSnap=null, deLineX=0, deLineY=0, deRefImg=null, deRefVis=true;
+let deInited=false;
+
+function openChapterDrawEditor(mode){
+  const titles={blank:'✏️ Нарисовать страницу',upload:'📁 Загрузить и обвести',ai:'🤖 ИИ + обвести'};
+  document.getElementById('draw-editor-title').textContent=titles[mode]||'✏️ Редактор';
+  document.getElementById('draw-editor-ai-row').style.display=mode==='ai'?'flex':'none';
+  document.getElementById('de-load-ref-btn').style.display=mode==='upload'?'':'none';
+  openModal('modal-draw-editor');
+  setTimeout(()=>deInit(mode),100);
+  if(mode==='upload') document.getElementById('de-ref-file').click();
+}
+
+function deInit(mode){
+  const wrap=document.getElementById('de-wrap');
+  const W=wrap.clientWidth||900, H=wrap.clientHeight||600;
+  deW=W; deH=H;
+  const rc=document.getElementById('deRefCanvas');
+  const dc=document.getElementById('deDrawCanvas');
+  rc.width=W; rc.height=H; rc.style.width=W+'px'; rc.style.height=H+'px';
+  dc.width=W; dc.height=H; dc.style.width=W+'px'; dc.style.height=H+'px';
+  deRefCtx=rc.getContext('2d');
+  deCtx=dc.getContext('2d');
+  if(!deInited){
+    deCtx.fillStyle='#ffffff'; deCtx.fillRect(0,0,W,H);
+    deUndoStack=[deCtx.getImageData(0,0,W,H)];
+    deSetupEvents(dc);
+    deInited=true;
+  } else {
+    deCtx.fillStyle='#ffffff'; deCtx.fillRect(0,0,W,H);
+    deUndoStack=[deCtx.getImageData(0,0,W,H)];
+  }
+  deRefImg=null;
+  deRefCtx.clearRect(0,0,W,H);
+  deUpdateBrush();
+}
+
+function deSetupEvents(canvas){
+  function pos(e){const r=canvas.getBoundingClientRect();const s=e.touches?e.touches[0]:e;return[s.clientX-r.left,s.clientY-r.top]}
+  canvas.addEventListener('mousedown',e=>{deStart(...pos(e))});
+  canvas.addEventListener('mousemove',e=>{if(deDrawing)deMove(...pos(e))});
+  canvas.addEventListener('mouseup',e=>{deEnd()});
+  canvas.addEventListener('mouseleave',()=>{deDrawing=false});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();deStart(...pos(e))},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(deDrawing)deMove(...pos(e))},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();deEnd()},{passive:false});
+}
+function deStart(x,y){
+  deDrawing=true; deLastX=x; deLastY=y;
+  if(deTool_==='fill'){deFloodFill(Math.round(x),Math.round(y));deDrawing=false;return}
+  if(deTool_==='line'){deLineX=x;deLineY=y;deLineSnap=deCtx.getImageData(0,0,deW,deH);return}
+  deSaveUndo(); deCtx.beginPath(); deCtx.moveTo(x,y);
+}
+function deMove(x,y){
+  if(deTool_==='pen'||deTool_==='eraser'){deCtx.lineTo(x,y);deCtx.stroke()}
+  else if(deTool_==='line'){deCtx.putImageData(deLineSnap,0,0);deCtx.beginPath();deCtx.moveTo(deLineX,deLineY);deCtx.lineTo(x,y);deCtx.stroke()}
+  deLastX=x;deLastY=y;
+}
+function deEnd(){if(deTool_==='line'&&deDrawing)deSaveUndo();deDrawing=false}
+function deTool(t){
+  deTool_=t;
+  document.querySelectorAll('.tool-btn[id^="de-tool-"]').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('de-tool-'+t);if(el)el.classList.add('active');
+  deUpdateBrush();
+  document.getElementById('deDrawCanvas').style.cursor=t==='fill'?'default':'crosshair';
+}
+function deUpdateBrush(){
+  if(!deCtx)return;
+  const size=parseInt(document.getElementById('de-brush-size').value);
+  const color=document.getElementById('de-brush-color').value;
+  document.getElementById('de-brush-size-val').textContent=size+'px';
+  deCtx.lineWidth=size; deCtx.lineCap='round'; deCtx.lineJoin='round';
+  if(deTool_==='eraser'){deCtx.globalCompositeOperation='destination-out';deCtx.strokeStyle='rgba(0,0,0,1)'}
+  else{deCtx.globalCompositeOperation='source-over';deCtx.strokeStyle=color}
+}
+function deSetColor(c){document.getElementById('de-brush-color').value=c;if(deTool_==='eraser')deTool('pen');deUpdateBrush()}
+function deUpdateRef(){
+  const val=parseInt(document.getElementById('de-ref-opacity').value);
+  document.getElementById('de-ref-opacity-val').textContent=val+'%';
+  if(!deRefCtx||!deRefImg)return;
+  deRefCtx.clearRect(0,0,deW,deH);
+  const scale=Math.min(deW/deRefImg.width,deH/deRefImg.height)*0.95;
+  const dw=deRefImg.width*scale,dh=deRefImg.height*scale,dx=(deW-dw)/2,dy=(deH-dh)/2;
+  deRefCtx.globalAlpha=val/100; deRefCtx.drawImage(deRefImg,dx,dy,dw,dh); deRefCtx.globalAlpha=1;
+}
+function deToggleRef(){
+  deRefVis=!deRefVis;
+  document.getElementById('deRefCanvas').style.opacity=deRefVis?'1':'0';
+  document.getElementById('de-toggle-ref').style.opacity=deRefVis?'1':'0.4';
+}
+function deLoadRef(){document.getElementById('de-ref-file').click()}
+function deOnRefFile(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();reader.onload=e=>deLoadRefUrl(e.target.result);reader.readAsDataURL(file);
+}
+function deLoadRefUrl(url){
+  const img=new Image();img.onload=()=>{
+    deRefImg=img; deUpdateRef();
+    document.getElementById('de-status').textContent='Подложка загружена! Обводи.';
+  };img.src=url;
+}
+function deSaveUndo(){
+  deUndoStack.push(deCtx.getImageData(0,0,deW,deH));
+  if(deUndoStack.length>40)deUndoStack.shift();
+}
+function deUndo(){if(deUndoStack.length<=1)return;deUndoStack.pop();deCtx.putImageData(deUndoStack[deUndoStack.length-1],0,0)}
+function deClear(){deSaveUndo();deCtx.fillStyle='#ffffff';deCtx.fillRect(0,0,deW,deH)}
+function deFloodFill(sx,sy){
+  const imgData=deCtx.getImageData(0,0,deW,deH);const data=imgData.data;
+  const color=hexToRgba(document.getElementById('de-brush-color').value);
+  const idx=(y,x)=>(y*deW+x)*4;const si=idx(sy,sx);
+  const tr=[data[si],data[si+1],data[si+2],data[si+3]];
+  if(tr[0]===color[0]&&tr[1]===color[1]&&tr[2]===color[2])return;
+  const stack=[[sx,sy]];
+  function match(i){return data[i]===tr[0]&&data[i+1]===tr[1]&&data[i+2]===tr[2]&&data[i+3]===tr[3]}
+  function paint(i){data[i]=color[0];data[i+1]=color[1];data[i+2]=color[2];data[i+3]=255}
+  deSaveUndo();
+  while(stack.length){const[x,y]=stack.pop();if(x<0||x>=deW||y<0||y>=deH)continue;const i=idx(y,x);if(!match(i))continue;paint(i);stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}
+  deCtx.putImageData(imgData,0,0);
+}
+
+async function genAIForEditor(){
+  const prompt=document.getElementById('draw-editor-ai-prompt').value.trim();
+  if(!prompt){showToast('Напиши промпт!','error');return}
+  const status=document.getElementById('draw-editor-ai-status');
+  status.textContent='⏳ Генерирую...';
+  const full=encodeURIComponent(`${prompt}, ${aiStyle}, high quality, detailed artwork`);
+  const seed=Math.floor(Math.random()*999999);
+  const url=`https://image.pollinations.ai/prompt/${full}?width=${aiW}&height=${aiH}&seed=${seed}&nologo=true&enhance=true&model=flux`;
+  const img=new Image();img.crossOrigin='anonymous';
+  img.onload=()=>{deLoadRefUrl(url);status.textContent='✅ Готово! Обводи.'}
+  img.onerror=()=>{status.textContent='❌ Ошибка. Попробуй ещё раз.'}
+  img.src=url;
+}
+
+function savePageFromDrawEditor(){
+  const canvas=document.getElementById('deDrawCanvas');
+  const url=canvas.toDataURL('image/png');
+  pendingChapterPages.push(url);
+  renderPagesGrid(pendingChapterPages);
+  deInited=false;
+  closeModal('modal-draw-editor');
+  showToast('Страница добавлена!','success');
+}
+
+
 const ADMIN_PASS = 'ComicsHubIlovebooks';
 let isAdmin = sessionStorage.getItem('ch_admin') === '1';
 
@@ -1062,7 +1280,6 @@ function applyAdminState(){
   document.getElementById('admin-btn').style.background=isAdmin?'rgba(76,175,125,0.15)':'';
   document.getElementById('admin-btn').style.color=isAdmin?'var(--green)':'';
   document.getElementById('admin-btn').style.borderColor=isAdmin?'rgba(76,175,125,0.3)':'var(--border)';
-  // перерендерить карточки чтобы скрыть/показать кнопки редактирования
   if(currentPage==='catalog')renderCatalog();
   if(currentPage==='drafts')renderDrafts();
   if(currentPage==='detail'&&currentComicId)renderChapters(currentComicId);
