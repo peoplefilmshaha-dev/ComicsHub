@@ -4,1495 +4,538 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ComicsHub</title>
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#f0ede8;--text2:#9b9690;--text3:#5a5752;--accent:#f5c842;--accent2:#e8a020;--red:#e8503a;--green:#4caf7d;--blue:#5b8dee;--r:10px;--r2:16px}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
-.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.logo-text{font-family:'Bangers',cursive;font-size:28px;letter-spacing:2px;color:var(--accent);text-shadow:3px 3px 0 #000;line-height:1}
-.logo-sub{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
-.sidebar-nav{flex:1;padding:10px 0;overflow-y:auto}
-.nav-section{padding:12px 16px 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;border-radius:8px;margin:1px 8px;color:var(--text2);font-size:14px;transition:background .15s,color .15s;user-select:none}
-.nav-item:hover{background:var(--bg3);color:var(--text)}
-.nav-item.active{background:rgba(245,200,66,0.12);color:var(--accent);font-weight:500}
-.nav-icon{font-size:18px;width:20px;text-align:center}
-.sidebar-footer{padding:14px 16px;border-top:1px solid var(--border)}
-.stats-row{display:flex;gap:16px}
-.stat-item{display:flex;flex-direction:column;gap:2px}
-.stat-val{font-size:16px;font-weight:600;color:var(--accent)}
-.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
-.main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
-.topbar{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px}
-.topbar-title{font-family:'Bangers',cursive;font-size:22px;letter-spacing:1px;color:var(--text);flex:1}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px;width:220px;transition:border-color .2s}
-.search-box:focus-within{border-color:var(--accent)}
-.search-box input{background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:14px;width:100%}
-.search-box input::placeholder{color:var(--text3)}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;transition:all .15s;text-decoration:none;white-space:nowrap}
-.btn-accent{background:var(--accent);color:#000}
-.btn-accent:hover{background:var(--accent2);transform:translateY(-1px)}
-.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
-.btn-ghost:hover{background:var(--bg4);color:var(--text)}
-.btn-danger{background:rgba(232,80,58,0.15);color:var(--red);border:1px solid rgba(232,80,58,0.25)}
-.btn-danger:hover{background:rgba(232,80,58,0.25)}
-.btn-sm{padding:5px 11px;font-size:13px}
-.page{display:none;padding:28px;animation:fadeIn .2s}
-.page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.section-title{font-family:'Bangers',cursive;font-size:26px;letter-spacing:1px}
-.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
-.tag-genre{background:rgba(91,141,238,0.15);color:var(--blue);border:1px solid rgba(91,141,238,0.2)}
-.tag-status-pub{background:rgba(76,175,125,0.15);color:var(--green);border:1px solid rgba(76,175,125,0.2)}
-.tag-status-draft{background:rgba(245,200,66,0.12);color:var(--accent);border:1px solid rgba(245,200,66,0.2)}
-.comics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px}
-.comic-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
-.comic-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 12px 32px rgba(0,0,0,0.5)}
-.comic-cover-gradient{width:100%;aspect-ratio:2/3;display:flex;align-items:flex-end;padding:12px;font-family:'Bangers',cursive;font-size:20px;letter-spacing:1px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.8);line-height:1.1;position:relative}
-.comic-card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity .15s}
-.comic-card:hover .comic-card-actions{opacity:1}
-.card-action-btn{width:30px;height:30px;border-radius:8px;background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
-.card-action-btn.del:hover{background:rgba(232,80,58,0.8)}
-.comic-info{padding:10px 12px 12px}
-.comic-title{font-weight:600;font-size:14px;line-height:1.3;margin-bottom:5px}
-.comic-meta{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
-.draft-badge{position:absolute;top:8px;left:8px;background:rgba(245,200,66,0.9);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
-.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.hidden{display:none}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;animation:slideModal .2s}
-@keyframes slideModal{from{transform:scale(0.95) translateY(10px)}to{transform:none}}
-.modal.wide{max-width:900px}
-.modal.fullscreen{max-width:98vw;width:98vw;max-height:96vh;height:96vh;display:flex;flex-direction:column;overflow:hidden}
-.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.modal-title{font-family:'Bangers',cursive;font-size:24px;letter-spacing:1px}
-.modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.modal-close:hover{background:var(--bg4);color:var(--text)}
-.modal-body{padding:20px 24px 24px}
-.form-row{margin-bottom:16px}
-.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
-label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500}
-input[type=text],input[type=number],textarea,select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;padding:9px 12px;outline:none;transition:border-color .2s}
-input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;--bor:rgba(255,255,255,.08);--bor2:rgba(255,255,255,.14);--t:#f0ede8;--t2:#9b9690;--t3:#5a5752;--acc:#f5c842;--acc2:#e8a020;--red:#e8503a;--grn:#4caf7d;--blu:#5b8dee;--r:10px;--r2:16px}
+[data-theme=light]{--bg:#f5f5f0;--bg2:#fff;--bg3:#eee;--bg4:#ddd;--bor:rgba(0,0,0,.1);--bor2:rgba(0,0,0,.15);--t:#111;--t2:#555;--t3:#999}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh;transition:background .3s,color .3s}
+@media(max-width:768px){.sb{transform:translateX(-100%)!important;width:260px;z-index:200}.sb.open{transform:none!important}.mob-tog{display:flex!important}.main{margin-left:0!important}.pg{padding:16px}.cg{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.dh{flex-direction:column}}
+.mob-tog{display:none;position:fixed;top:12px;left:12px;z-index:150;width:40px;height:40px;border-radius:10px;background:var(--bg2);border:1px solid var(--bor);color:var(--t);font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+.sb{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--bor);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:20px;border-bottom:1px solid var(--bor)}
+.logo{font-family:'Bangers',cursive;font-size:28px;letter-spacing:2px;color:var(--acc);text-shadow:3px 3px 0 rgba(0,0,0,.5)}
+.logo-sub{font-size:11px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.ns{padding:12px 16px 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;border-radius:8px;margin:1px 8px;color:var(--t2);font-size:14px;transition:all .15s;user-select:none}
+.ni:hover{background:var(--bg3);color:var(--t)}.ni.active{background:rgba(245,200,66,.12);color:var(--acc);font-weight:500}
+.sb-ft{padding:14px 16px;border-top:1px solid var(--bor);font-size:12px;color:var(--t3)}
+.sv{font-size:16px;font-weight:600;color:var(--acc)}.sl{font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.main{margin-left:220px;min-height:100vh}
+.top{position:sticky;top:0;z-index:50;background:rgba(15,15,15,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--bor);padding:12px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+[data-theme=light] .top{background:rgba(245,245,240,.95)}
+.top-t{font-family:'Bangers',cursive;font-size:22px;letter-spacing:1px;flex:1}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--bor);border-radius:var(--r);padding:7px 12px;width:200px}
+.sbox input{background:none;border:none;outline:none;color:var(--t);font-family:inherit;font-size:14px;width:100%}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;transition:all .15s;white-space:nowrap}
+.ba{background:var(--acc);color:#000}.ba:hover{background:var(--acc2)}
+.bg{background:var(--bg3);color:var(--t2);border:1px solid var(--bor)}.bg:hover{background:var(--bg4);color:var(--t)}
+.bd{background:rgba(232,80,58,.15);color:var(--red);border:1px solid rgba(232,80,58,.25)}
+.bs{padding:5px 11px;font-size:13px}
+.pg{display:none;padding:28px;animation:fi .2s}.pg.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px}
+.cc{background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative}
+.cc:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.5)}
+.cc-cover{width:100%;aspect-ratio:2/3;display:flex;align-items:flex-end;padding:12px;font-family:'Bangers',cursive;font-size:20px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.8);position:relative}
+.cc-info{padding:10px 12px}.cc-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.cc-meta{font-size:12px;color:var(--t3);display:flex;gap:6px;align-items:center}
+.cc-acts{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.cc:hover .cc-acts{opacity:1}
+.cc-btn{width:30px;height:30px;border-radius:8px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.draft-b{position:absolute;top:8px;left:8px;background:rgba(245,200,66,.9);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.mo{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:20px}.mo.hidden{display:none}
+.md{background:var(--bg2);border:1px solid var(--bor2);border-radius:20px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto}
+.md.wide{max-width:900px}
+.md-h{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.md-t{font-family:'Bangers',cursive;font-size:24px;letter-spacing:1px}
+.md-x{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--bor);color:var(--t2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.md-b{padding:20px 24px 24px}
+.fr{margin-bottom:16px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+label{display:block;font-size:13px;color:var(--t2);margin-bottom:6px;font-weight:500}
+input[type=text],input[type=number],input[type=password],textarea,select{width:100%;background:var(--bg3);border:1px solid var(--bor2);border-radius:var(--r);color:var(--t);font-family:inherit;font-size:14px;padding:9px 12px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--acc)}
 textarea{resize:vertical;min-height:80px;line-height:1.5}
-select option{background:#1e1e1e}
-.cover-upload{border:2px dashed var(--border2);border-radius:var(--r2);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
-.cover-upload:hover{border-color:var(--accent);background:rgba(245,200,66,0.04)}
-.cover-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.cover-preview{width:90px;height:135px;object-fit:cover;border-radius:8px;margin:0 auto 8px;display:block;border:1px solid var(--border2)}
-.cover-emoji{font-size:36px;margin-bottom:8px}
-.upload-hint{font-size:13px;color:var(--text3)}
-.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-.chapters-list{display:flex;flex-direction:column;gap:8px}
-.chapter-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
-.chapter-item:hover{border-color:var(--border2)}
-.chapter-num{font-family:'Bangers',cursive;font-size:20px;color:var(--accent);min-width:36px;text-align:center}
-.chapter-info{flex:1}
-.chapter-title-text{font-weight:500;font-size:14px}
-.chapter-meta{font-size:12px;color:var(--text3);margin-top:2px;display:flex;gap:12px}
-.chapter-actions{display:flex;gap:6px}
-.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:14px}
-.page-thumb{aspect-ratio:2/3;background:var(--bg4);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s}
-.page-thumb:hover{border-color:var(--border2)}
-.page-thumb img{width:100%;height:100%;object-fit:cover}
-.page-thumb .page-num{position:absolute;bottom:4px;right:5px;font-size:10px;background:rgba(0,0,0,0.8);padding:1px 5px;border-radius:4px;color:var(--text2)}
-.page-thumb .page-del{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(232,80,58,0.85);color:#fff;border-radius:5px;font-size:12px;display:none;align-items:center;justify-content:center;cursor:pointer}
-.page-thumb:hover .page-del{display:flex}
-.add-page-btn{aspect-ratio:2/3;background:var(--bg3);border:2px dashed var(--border2);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text3);transition:border-color .15s,color .15s,background .15s;position:relative;overflow:hidden}
-.add-page-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(245,200,66,0.04)}
-.add-page-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.add-page-plus{font-size:28px;line-height:1}
-#page-reader{padding:0;background:#000}
-.reader-topbar{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 20px;display:flex;align-items:center;gap:14px}
-.reader-pages{max-width:800px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:4px}
-.reader-page-img{width:100%;display:block;border-radius:4px}
-.reader-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:24px}
-.chapter-select-bar{display:flex;gap:8px;flex:1;overflow-x:auto;padding-bottom:2px}
-.chap-btn{white-space:nowrap;padding:5px 12px;border-radius:20px;font-size:13px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s}
-.chap-btn:hover{border-color:var(--border2);color:var(--text)}
-.chap-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
-.detail-header{display:flex;gap:28px;margin-bottom:28px;align-items:flex-start}
-.detail-cover{width:160px;min-width:160px;aspect-ratio:2/3;border-radius:var(--r2);object-fit:cover;background:var(--bg3);border:1px solid var(--border)}
-.detail-cover-placeholder{width:160px;min-width:160px;aspect-ratio:2/3;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:56px}
-.detail-info{flex:1}
-.detail-title{font-family:'Bangers',cursive;font-size:36px;letter-spacing:2px;line-height:1.1;margin-bottom:8px}
-.detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.detail-desc{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:16px;max-width:520px}
-.detail-actions{display:flex;gap:10px;flex-wrap:wrap}
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
-.empty-icon{font-size:56px;margin-bottom:12px}
-.empty-title{font-family:'Bangers',cursive;font-size:26px;letter-spacing:1px;color:var(--text2);margin-bottom:8px}
-.empty-text{font-size:14px;margin-bottom:20px}
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);padding:12px 18px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);pointer-events:none;max-width:320px}
+.fa{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bor)}
+.tag{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.dh{display:flex;gap:28px;margin-bottom:28px;align-items:flex-start}
+.dc{width:160px;min-width:160px;aspect-ratio:2/3;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;font-size:56px}
+.di{flex:1}.dt{font-family:'Bangers',cursive;font-size:36px;letter-spacing:2px;line-height:1.1;margin-bottom:8px}
+.dd{color:var(--t2);font-size:14px;line-height:1.7;margin-bottom:16px}
+.da{display:flex;gap:10px;flex-wrap:wrap}
+.ch-list{display:flex;flex-direction:column;gap:8px}
+.ch-item{background:var(--bg3);border:1px solid var(--bor);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px}
+.ch-num{font-family:'Bangers',cursive;font-size:20px;color:var(--acc);min-width:36px;text-align:center}
+.ch-acts{display:flex;gap:6px}
+.pgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:14px}
+.pg-th{aspect-ratio:2/3;background:var(--bg4);border:1px solid var(--bor);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
+.pg-th img{width:100%;height:100%;object-fit:cover}
+.add-pg{aspect-ratio:2/3;background:var(--bg3);border:2px dashed var(--bor2);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:12px;color:var(--t3);position:relative;overflow:hidden}
+.add-pg:hover{border-color:var(--acc);color:var(--acc)}
+.add-pg input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.emp{text-align:center;padding:60px 20px;color:var(--t3)}
+.emp-i{font-size:56px;margin-bottom:12px}.emp-t{font-family:'Bangers',cursive;font-size:26px;color:var(--t2);margin-bottom:8px}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg4);border:1px solid var(--bor2);border-radius:var(--r);padding:12px 18px;font-size:14px;font-weight:500;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px}
 .toast.show{transform:none;opacity:1}
-.toast-success{border-left:3px solid var(--green)}
-.toast-error{border-left:3px solid var(--red)}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:#333}
-.divider{height:1px;background:var(--border);margin:20px 0}
-.text-muted{color:var(--text3);font-size:13px}
-
-/* WELCOME SCREEN */
-.welcome-overlay{position:fixed;inset:0;z-index:9999;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:20px}
-.welcome-box{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;animation:slideModal .3s}
-.welcome-logo{font-family:'Bangers',cursive;font-size:48px;letter-spacing:4px;color:var(--accent);text-shadow:4px 4px 0 #000;text-align:center;padding:28px 0 4px}
-.welcome-sub{text-align:center;font-size:13px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px}
-.rules-list{padding:0 24px;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-.rule-item{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);font-size:14px;line-height:1.5}
-.rule-icon{font-size:20px;flex-shrink:0;margin-top:1px}
-.rule-text{color:var(--text2)}
-.rule-text strong{color:var(--text)}
-.welcome-fine-print{padding:0 24px 16px;font-size:11px;color:var(--text3);text-align:center;line-height:1.6}
-.welcome-footer{padding:16px 24px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-.welcome-checkbox{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);cursor:pointer}
-.welcome-checkbox input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
-.welcome-enter-btn{width:100%;padding:14px;font-family:'Bangers',cursive;font-size:22px;letter-spacing:2px;background:var(--accent);color:#000;border:none;border-radius:var(--r);cursor:pointer;transition:all .2s;opacity:0.4;pointer-events:none}
-.welcome-enter-btn.ready{opacity:1;pointer-events:auto}
-.welcome-enter-btn.ready:hover{background:var(--accent2);transform:translateY(-2px)}
-/* RATING & COMMENTS */
-.rating-stars{display:flex;gap:4px}
-.star{font-size:22px;cursor:pointer;transition:transform .1s;user-select:none;filter:grayscale(1);opacity:0.4}
-.star.active{filter:none;opacity:1;transform:scale(1.1)}
-.star:hover{transform:scale(1.2)}
-.comments-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.comment-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
-.comment-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.comment-author{font-weight:600;font-size:13px}
-.comment-date{font-size:11px;color:var(--text3)}
-.comment-stars{font-size:12px}
-.comment-text{font-size:14px;color:var(--text2);line-height:1.5}
-.comment-input-area{margin-top:14px;display:flex;flex-direction:column;gap:8px}
-#page-ai{padding:0}
-.ai-layout{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 57px)}
-.ai-panel{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.ai-panel-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-.ai-panel-title{font-family:'Bangers',cursive;font-size:20px;letter-spacing:1px;margin-bottom:2px}
-.ai-panel-sub{font-size:12px;color:var(--text3)}
-.ai-panel-body{flex:1;overflow-y:auto;padding:16px 20px}
-.ai-panel-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
-.prompt-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:14px;padding:10px 12px;outline:none;resize:none;min-height:90px;line-height:1.5;transition:border-color .2s}
-.prompt-input:focus{border-color:var(--accent)}
-.setting-row{margin-bottom:14px}
-.setting-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px}
-.style-chips{display:flex;flex-wrap:wrap;gap:6px}
-.style-chip{padding:4px 10px;border-radius:20px;font-size:12px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s;user-select:none}
-.style-chip:hover{border-color:var(--border2);color:var(--text)}
-.style-chip.active{background:rgba(245,200,66,0.15);border-color:var(--accent);color:var(--accent)}
-.gen-btn{width:100%;padding:12px;font-size:15px;font-weight:600;background:var(--accent);color:#000;border:none;border-radius:var(--r);cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
-.gen-btn:hover{background:var(--accent2);transform:translateY(-1px)}
-.gen-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.quick-prompts{display:flex;flex-direction:column;gap:5px;margin-top:6px}
-.quick-prompt{padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;text-align:left;font-family:inherit}
-.quick-prompt:hover{border-color:var(--accent);color:var(--accent);background:rgba(245,200,66,0.05)}
-.ai-results{flex:1;background:var(--bg);overflow-y:auto;padding:20px}
-.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-.result-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .2s,transform .2s}
-.result-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.result-img{width:100%;display:block;background:var(--bg3);cursor:pointer}
-.result-actions{padding:8px 10px;display:flex;gap:6px;flex-wrap:wrap}
-.gen-placeholder{background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3);font-size:13px;min-height:200px}
-.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.divider{height:1px;background:var(--bor);margin:20px 0}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.wo{position:fixed;inset:0;z-index:9999;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:20px}
+.wb{background:var(--bg2);border:1px solid var(--bor2);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.wl{font-family:'Bangers',cursive;font-size:48px;letter-spacing:4px;color:var(--acc);text-shadow:4px 4px 0 #000;text-align:center;padding:28px 0 4px}
+.rl{padding:0 24px;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.ri{display:flex;gap:10px;padding:12px 14px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--bor);font-size:14px;line-height:1.5}
+.ri-t{color:var(--t2)}.ri-t strong{color:var(--t)}
+.wfp{padding:0 24px 16px;font-size:11px;color:var(--t3);text-align:center;line-height:1.6}
+.we{width:100%;padding:14px;font-family:'Bangers',cursive;font-size:22px;background:var(--acc);color:#000;border:none;border-radius:var(--r);cursor:pointer;opacity:.4;pointer-events:none}
+.we.ready{opacity:1;pointer-events:auto}
+.login-box{background:var(--bg2);border:1px solid var(--bor2);border-radius:20px;max-width:400px;width:100%;padding:32px;text-align:center}
+.login-box h2{font-family:'Bangers',cursive;font-size:32px;color:var(--acc);margin-bottom:4px}
+.stars{display:flex;gap:4px}.star{font-size:22px;cursor:pointer;user-select:none;filter:grayscale(1);opacity:.4}.star.on{filter:none;opacity:1}
+.cm-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.cm-item{background:var(--bg3);border:1px solid var(--bor);border-radius:var(--r);padding:12px 14px}
+.cm-au{font-weight:600;font-size:13px;color:var(--acc)}.cm-dt{font-size:11px;color:var(--t3)}
+.cm-txt{font-size:14px;color:var(--t2);line-height:1.5}
+.ed-tb{background:var(--bg2);border-bottom:1px solid var(--bor);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.tg{display:flex;align-items:center;gap:6px;padding-right:10px;border-right:1px solid var(--bor)}.tg:last-child{border-right:none}
+.tb{width:34px;height:34px;border-radius:8px;background:var(--bg3);border:1px solid var(--bor);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tb.on{background:rgba(245,200,66,.15);border-color:var(--acc);color:var(--acc)}
+.ts{width:80px;accent-color:var(--acc);cursor:pointer}.tv{font-size:12px;color:var(--t2);min-width:24px}
+.chip{padding:4px 10px;border-radius:20px;font-size:12px;background:var(--bg3);border:1px solid var(--bor);color:var(--t2);cursor:pointer;user-select:none}
+.chip.on{background:rgba(245,200,66,.15);border-color:var(--acc);color:var(--acc)}
+.spinner{width:32px;height:32px;border:3px solid var(--bor2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ai-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text3);text-align:center;gap:12px}
-.count-row{display:flex;align-items:center;gap:8px}
-.count-btn{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;transition:all .15s}
-.count-btn:hover{border-color:var(--border2)}
-
-/* EDITOR */
-#page-editor{padding:0}
-.editor-page{height:calc(100vh - 57px);display:flex;flex-direction:column}
-.editor-toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
-.tool-group{display:flex;align-items:center;gap:6px;padding-right:10px;border-right:1px solid var(--border)}
-.tool-group:last-child{border-right:none;margin-left:auto}
-.tool-btn{width:34px;height:34px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0}
-.tool-btn:hover{border-color:var(--border2);color:var(--text)}
-.tool-btn.active{background:rgba(245,200,66,0.15);border-color:var(--accent);color:var(--accent)}
-.tlabel{font-size:12px;color:var(--text3)}
-.tslider{width:80px;accent-color:var(--accent);cursor:pointer}
-.tval{font-size:12px;color:var(--text2);min-width:24px}
-.color-dot{width:28px;height:28px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;padding:0;overflow:hidden;flex-shrink:0}
-.editor-wrap{flex:1;overflow:hidden;position:relative;background:#0a0a0a;display:flex;align-items:center;justify-content:center}
-#refCanvas{position:absolute;top:0;left:0;pointer-events:none;image-rendering:pixelated}
-#drawCanvas{position:absolute;top:0;left:0;touch-action:none}
-.ed-status{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--text3);pointer-events:none;white-space:nowrap}
+.adm-only,.staff-only{display:none}
+.rd-pages{max-width:800px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:4px}
+.rd-img{width:100%;display:block;border-radius:4px}
+.rd-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:24px}
+.chbtn{white-space:nowrap;padding:5px 12px;border-radius:20px;font-size:13px;background:var(--bg3);border:1px solid var(--bor);color:var(--t2);cursor:pointer}
+.chbtn.on{background:var(--acc);color:#000;font-weight:600}
+.chat-box{display:flex;flex-direction:column;height:calc(100vh - 57px)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.chat-msg{background:var(--bg3);border:1px solid var(--bor);border-radius:var(--r);padding:8px 12px;max-width:80%}
+.chat-msg.mine{align-self:flex-end;background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.2)}
+.chat-input{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--bor);background:var(--bg2)}
+.chat-input input{flex:1}
+.cl-box{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px}
+.cl-inner{background:var(--bg2);border:1px solid var(--bor2);border-radius:20px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;padding:24px}
+.top-banner{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;margin-bottom:16px}
+.top-card{min-width:140px;background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r);padding:10px;text-align:center;cursor:pointer;flex-shrink:0}
+.top-card:hover{border-color:var(--acc)}
+.top-rank{font-family:'Bangers',cursive;font-size:24px;color:var(--acc)}
+.announce{background:linear-gradient(90deg,rgba(245,200,66,.1),rgba(91,141,238,.1));border-bottom:1px solid var(--bor);padding:8px 28px;font-size:13px;color:var(--t2);display:none;align-items:center;gap:8px}
+.announce strong{color:var(--acc)}
+.profile-hd{background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);padding:24px;margin-bottom:20px;display:flex;gap:20px;align-items:center}
+.profile-av{width:64px;height:64px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--acc)}
 </style>
 </head>
 <body>
-
-<!-- WELCOME SCREEN -->
-<div class="welcome-overlay" id="welcome-overlay">
-  <div class="welcome-box">
-    <div class="welcome-logo">ComicsHub</div>
-    <div class="welcome-sub">Платформа для комиксов и манги</div>
-    <div class="rules-list">
-      <div class="rule-item"><div class="rule-icon">🔞</div><div class="rule-text"><strong>NSFW контент запрещён</strong> — эротические комиксы и манга не допускаются.</div></div>
-      <div class="rule-item"><div class="rule-icon">✍️</div><div class="rule-text"><strong>Чужие персонажи без разрешения</strong> — нельзя использовать персонажей других авторов без их согласия. Фейковые продолжения чужих комиксов запрещены.</div></div>
-      <div class="rule-item"><div class="rule-icon">📋</div><div class="rule-text"><strong>Плагиат запрещён</strong> — перерисовка существующих официальных комиксов без указания источника не допускается.</div></div>
-      <div class="rule-item"><div class="rule-icon">🚫</div><div class="rule-text"><strong>GAZANа рисовать запрещено</strong> — категорически.</div></div>
-      <div class="rule-item"><div class="rule-icon">⛔</div><div class="rule-text"><strong>Нацистская пропаганда запрещена</strong> — любой контент, пропагандирующий нацизм и экстремизм.</div></div>
-    </div>
-    <div class="welcome-fine-print">
-      Пользуясь ComicsHub, вы автоматически соглашаетесь встать на колено перед автором платформы и вознести молитву его никнейму.<br>Это обязательное условие использования сервиса.
-    </div>
-    <div class="welcome-footer">
-      <label class="welcome-checkbox">
-        <input type="checkbox" id="rules-checkbox" onchange="checkRules()"/>
-        Я прочитал(а) правила и принимаю их
-      </label>
-      <button class="welcome-enter-btn" id="welcome-enter-btn" onclick="enterSite()">ВОЙТИ В COMICSHUB</button>
-    </div>
-  </div>
+<!-- SERVICE OFF -->
+<div id="svc-off" style="display:none;position:fixed;inset:0;z-index:10000;background:#0a0a0a;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
+<div style="font-family:'Bangers',cursive;font-size:48px;color:var(--red);margin-bottom:16px">⚠️ Сервис Отключён</div>
+<div style="font-size:16px;color:var(--t2);max-width:400px" id="svc-reason"></div>
 </div>
 
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-text">ComicsHub</div>
-    <div class="logo-sub">Мои комиксы</div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">Навигация</div>
-    <div class="nav-item active" onclick="showPage('catalog')" data-page="catalog"><span class="nav-icon">📚</span> Каталог</div>
-    <div class="nav-item" onclick="showPage('drafts')" data-page="drafts"><span class="nav-icon">✏️</span> Черновики</div>
-    <div class="nav-section">Инструменты</div>
-    <div class="nav-item" onclick="showPage('editor')" data-page="editor"><span class="nav-icon">🎨</span> Редактор обводки</div>
-    <div class="nav-item admin-only" onclick="showPage('ai')" data-page="ai" style="display:none"><span class="nav-icon">🤖</span> ИИ Генератор</div>
-    <div class="nav-item" onclick="openAddComicModal()"><span class="nav-icon">➕</span> Новый комикс</div>
-    <div class="nav-section" style="margin-top:auto"></div>
-    <div class="nav-item" id="admin-btn" onclick="toggleAdmin()" style="margin-top:8px;border:1px solid var(--border)"><span class="nav-icon">🔐</span> <span id="admin-btn-label">Права Администратора</span></div>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="stats-row">
-      <div class="stat-item"><span class="stat-val" id="stat-comics">0</span><span class="stat-label">комиксов</span></div>
-      <div class="stat-item"><span class="stat-val" id="stat-chapters">0</span><span class="stat-label">глав</span></div>
-      <div class="stat-item"><span class="stat-val" id="stat-pages">0</span><span class="stat-label">страниц</span></div>
-    </div>
-  </div>
+<!-- CHANGELOG -->
+<div class="cl-box" id="cl-box" style="display:none">
+<div class="cl-inner">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-family:'Bangers',cursive;font-size:24px">📋 Что нового?</div><button class="md-x" onclick="closeCL()">✕</button></div>
+<div id="cl-items"></div>
+<div style="margin-top:16px;text-align:right"><button class="btn ba" onclick="closeCL()">Понятно!</button></div>
+</div>
+</div>
+
+<!-- WELCOME -->
+<div class="wo" id="wo">
+<div class="wb">
+<div class="wl">ComicsHub</div>
+<div style="text-align:center;font-size:13px;color:var(--t3);text-transform:uppercase;margin-bottom:20px">Платформа для комиксов и манги</div>
+<div class="rl">
+<div class="ri"><div style="font-size:20px;flex-shrink:0">🔞</div><div class="ri-t"><strong>NSFW контент запрещён</strong> — эротические комиксы/манга не допускаются.</div></div>
+<div class="ri"><div style="font-size:20px;flex-shrink:0">✍️</div><div class="ri-t"><strong>Чужие персонажи без разрешения</strong> — фейковые продолжения запрещены.</div></div>
+<div class="ri"><div style="font-size:20px;flex-shrink:0">📋</div><div class="ri-t"><strong>Плагиат запрещён.</strong></div></div>
+<div class="ri"><div style="font-size:20px;flex-shrink:0">🚫</div><div class="ri-t"><strong>GAZANа рисовать запрещено.</strong></div></div>
+<div class="ri"><div style="font-size:20px;flex-shrink:0">⛔</div><div class="ri-t"><strong>Нацистская пропаганда запрещена.</strong></div></div>
+</div>
+<div class="wfp">Пользуясь ComicsHub, вы соглашаетесь встать на колено перед автором платформы и вознести молитву его никнейму.<br><br><span style="font-size:10px;opacity:.6">Администрация имеет право заблокировать ваш аккаунт без объяснения причины.</span></div>
+<div style="padding:16px 24px 24px;border-top:1px solid var(--bor)">
+<label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t2);cursor:pointer;margin-bottom:10px"><input type="checkbox" id="rc" onchange="document.getElementById('web').classList.toggle('ready',this.checked)" style="width:16px;height:16px;accent-color:var(--acc)"/>Я принимаю правила</label>
+<button class="we" id="web" onclick="acceptRules()">ВОЙТИ В COMICSHUB</button>
+</div>
+</div>
+</div>
+
+<!-- LOGIN -->
+<div class="mo hidden" id="login-mo"><div class="login-box"><h2>Добро пожаловать!</h2><p style="font-size:13px;color:var(--t3);margin-bottom:20px">Введи имя пользователя</p><div class="fr"><input type="text" id="login-name" placeholder="Имя..." maxlength="20"/></div><button class="btn ba" onclick="doLogin()" style="width:100%;justify-content:center">Войти</button></div></div>
+
+<!-- MOBILE TOGGLE -->
+<button class="mob-tog" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<!-- SIDEBAR -->
+<aside class="sb" id="sidebar" style="display:none">
+<div class="sb-logo"><div class="logo">ComicsHub</div><div class="logo-sub" id="user-display"></div></div>
+<nav class="sb-nav">
+<div class="ns">Навигация</div>
+<div class="ni active" onclick="go('catalog')" data-p="catalog"><span>📚</span> Каталог</div>
+<div class="ni" onclick="go('top')" data-p="top"><span>🏆</span> Топ комиксов</div>
+<div class="ni" onclick="go('my')" data-p="my"><span>📁</span> Мои комиксы</div>
+<div class="ni" onclick="go('chat')" data-p="chat"><span>💬</span> Чат</div>
+<div class="ns">Инструменты</div>
+<div class="ni" onclick="go('editor')" data-p="editor"><span>🎨</span> Редактор</div>
+<div class="ni staff-only" onclick="go('ai')" data-p="ai" style="display:none"><span>🤖</span> ИИ Генератор</div>
+<div class="ni" onclick="openNewComic()"><span>➕</span> Новый комикс</div>
+<div class="ni adm-only" onclick="go('panel')" data-p="panel" style="display:none"><span>⚙️</span> Админ-панель</div>
+<div class="ni" onclick="go('changelog')" data-p="changelog"><span>📋</span> Обновления</div>
+<div style="flex:1"></div>
+<div id="role-badge" style="display:none;padding:4px 16px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase"></div>
+<div class="ni" id="adm-btn" onclick="toggleAdmin()" style="border:1px solid var(--bor)"><span>🔐</span> <span id="adm-label">Запросить Права</span></div>
+<div class="ni" onclick="toggleTheme()" id="theme-btn"><span>🌙</span> <span id="theme-label">Светлая тема</span></div>
+<div class="ni" onclick="doLogout()" style="color:var(--red)"><span>🚪</span> Выйти</div>
+</nav>
+<div class="sb-ft"><div style="display:flex;gap:16px"><div><span class="sv" id="s-c">0</span><br><span class="sl">комиксов</span></div><div><span class="sv" id="s-ch">0</span><br><span class="sl">глав</span></div><div><span class="sv" id="s-p">0</span><br><span class="sl">страниц</span></div></div></div>
 </aside>
 
-<main class="main">
-  <div class="topbar">
-    <div class="topbar-title" id="topbar-title">Каталог</div>
-    <div class="search-box"><span>🔍</span><input type="text" placeholder="Поиск..." id="search-input" oninput="filterComics()"/></div>
-    <button class="btn btn-accent" id="topbar-new-btn" onclick="openAddComicModal()">+ Новый комикс</button>
-  </div>
+<main class="main" id="main-content" style="display:none">
+<!-- ANNOUNCEMENT -->
+<div class="announce" id="announce"><strong>📢</strong> <span id="announce-txt"></span> <button onclick="this.parentElement.style.display='none'" style="margin-left:auto;background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px">✕</button></div>
+<div class="top">
+<div class="top-t" id="top-t">Каталог</div>
+<div class="sbox"><span>🔍</span><input type="text" placeholder="Поиск по названию/автору..." id="sinp" oninput="doSearch()"/></div>
+<button class="btn ba" onclick="openNewComic()">+ Новый комикс</button>
+</div>
 
-  <!-- CATALOG -->
-  <div class="page active" id="page-catalog">
-    <div style="margin-bottom:20px;display:flex;gap:8px;flex-wrap:wrap" id="genre-filter-bar"></div>
-    <div id="catalog-grid" class="comics-grid"></div>
-    <div id="catalog-empty" class="empty-state" style="display:none">
-      <div class="empty-icon">📖</div><div class="empty-title">Нет опубликованных комиксов</div>
-      <div class="empty-text">Создай первый!</div>
-      <button class="btn btn-accent" onclick="openAddComicModal()">+ Создать</button>
-    </div>
-  </div>
+<!-- CATALOG -->
+<div class="pg active" id="p-catalog">
+<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap" id="gf-bar"></div>
+<div id="cat-grid" class="cg"></div>
+<div id="cat-emp" class="emp" style="display:none"><div class="emp-i">📖</div><div class="emp-t">Нет комиксов</div><button class="btn ba" onclick="openNewComic()">+ Создать</button></div>
+</div>
 
-  <!-- DRAFTS -->
-  <div class="page" id="page-drafts">
-    <div id="drafts-grid" class="comics-grid"></div>
-    <div id="drafts-empty" class="empty-state" style="display:none">
-      <div class="empty-icon">✏️</div><div class="empty-title">Нет черновиков</div>
-      <button class="btn btn-accent" onclick="openAddComicModal()">+ Создать</button>
-    </div>
-  </div>
+<!-- TOP -->
+<div class="pg" id="p-top">
+<div style="font-family:'Bangers',cursive;font-size:32px;margin-bottom:20px">🏆 Топ комиксов по рейтингу</div>
+<div id="top-grid" class="cg"></div>
+</div>
 
-  <!-- DETAIL -->
-  <div class="page" id="page-detail">
-    <button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:20px">← Назад</button>
-    <div class="detail-header" id="detail-header"></div>
-    <div class="divider"></div>
-    <div class="section-header">
-      <div class="section-title">Главы</div>
-      <button class="btn btn-accent btn-sm admin-only" onclick="openAddChapterModal()" style="display:none">+ Добавить главу</button>
-    </div>
-    <div class="chapters-list" id="detail-chapters"></div>
-    <div id="detail-no-chapters" class="empty-state" style="display:none;padding:30px 0">
-      <div class="empty-icon">📄</div><div class="empty-title">Нет глав</div>
-    </div>
-    <!-- RATING & COMMENTS -->
-    <div class="divider"></div>
-    <div id="detail-comments-section">
-      <div class="section-header" style="margin-bottom:16px">
-        <div class="section-title">Отзывы</div>
-        <div id="detail-avg-rating" style="font-family:'Bangers',cursive;font-size:20px;letter-spacing:1px;color:var(--accent)"></div>
-      </div>
-      <div class="comment-input-area" id="comment-input-area">
-        <div style="font-size:13px;color:var(--text2);font-weight:500">Оставить отзыв</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:13px;color:var(--text3)">Оценка:</span>
-          <div class="rating-stars" id="new-comment-stars">
-            <span class="star" data-val="1" onclick="setCommentStar(1)">⭐</span>
-            <span class="star" data-val="2" onclick="setCommentStar(2)">⭐</span>
-            <span class="star" data-val="3" onclick="setCommentStar(3)">⭐</span>
-            <span class="star" data-val="4" onclick="setCommentStar(4)">⭐</span>
-            <span class="star" data-val="5" onclick="setCommentStar(5)">⭐</span>
-          </div>
-          <span id="new-comment-star-val" style="font-size:13px;color:var(--text3)">не выбрано</span>
-        </div>
-        <input type="text" id="new-comment-author" placeholder="Твоё имя..." style="max-width:200px"/>
-        <textarea id="new-comment-text" placeholder="Напиши отзыв..." rows="3"></textarea>
-        <div><button class="btn btn-accent btn-sm" onclick="submitComment()">💬 Отправить</button></div>
-      </div>
-      <div class="comments-list" id="comments-list"></div>
-    </div>
-  </div>
+<!-- MY -->
+<div class="pg" id="p-my"><div id="my-grid" class="cg"></div><div id="my-emp" class="emp" style="display:none"><div class="emp-i">📁</div><div class="emp-t">У тебя нет комиксов</div><button class="btn ba" onclick="openNewComic()">+ Создать</button></div></div>
 
-  <!-- READER -->
-  <div class="page" id="page-reader" style="padding:0;background:#000">
-    <div class="reader-topbar">
-      <button class="btn btn-ghost btn-sm" onclick="closeReader()">← Выйти</button>
-      <div style="font-weight:600;font-size:15px;flex:1" id="reader-title"></div>
-      <div class="chapter-select-bar" id="reader-chapter-bar"></div>
-    </div>
-    <div class="reader-pages" id="reader-pages"></div>
-    <div class="reader-nav">
-      <button class="btn btn-ghost" id="prev-chap-btn" onclick="readerPrevChap()">← Пред.</button>
-      <span class="text-muted" id="reader-chap-label"></span>
-      <button class="btn btn-ghost" id="next-chap-btn" onclick="readerNextChap()">След. →</button>
-    </div>
-  </div>
+<!-- CHAT -->
+<div class="pg" id="p-chat" style="padding:0">
+<div class="chat-box">
+<div class="chat-msgs" id="chat-msgs"></div>
+<div class="chat-input"><input type="text" id="chat-inp" placeholder="Написать..." onkeydown="if(event.key==='Enter')sendChat()"/><button class="btn ba" onclick="sendChat()">➤</button></div>
+</div>
+</div>
 
-  <!-- AI GENERATOR -->
-  <div class="page" id="page-ai" style="padding:0">
-    <div class="ai-layout">
-      <div class="ai-panel">
-        <div class="ai-panel-header">
-          <div class="ai-panel-title">🤖 ИИ Генератор</div>
-          <div class="ai-panel-sub">Pollinations.ai · Бесплатно · Без ограничений</div>
-        </div>
-        <div class="ai-panel-body">
-          <div class="setting-row">
-            <div class="setting-label">Стиль рисовки</div>
-            <div class="style-chips" id="style-chips">
-              <div class="style-chip active" data-val="comic book art, cel shading, bold outlines, dynamic">Комикс</div>
-              <div class="style-chip" data-val="manga style, black and white, detailed lineart, screentone">Манга</div>
-              <div class="style-chip" data-val="dark gritty comic art, noir, heavy shadows, Frank Miller style">Тёмный</div>
-              <div class="style-chip" data-val="Marvel superhero comic art, dynamic action pose, vibrant colors, Jack Kirby">Супергерои</div>
-              <div class="style-chip" data-val="anime style, detailed, colorful, Studio Ghibli inspired">Аниме</div>
-              <div class="style-chip" data-val="realistic digital painting, cinematic lighting, photorealistic">Реализм</div>
-              <div class="style-chip" data-val="cartoon style, bold outlines, flat colors, Disney animated">Мультфильм</div>
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-label">Формат картинки</div>
-            <div class="style-chips" id="ratio-chips">
-              <div class="style-chip active" data-w="768" data-h="1024">Портрет 3:4</div>
-              <div class="style-chip" data-w="1024" data-h="768">Пейзаж 4:3</div>
-              <div class="style-chip" data-w="1024" data-h="1024">Квадрат 1:1</div>
-              <div class="style-chip" data-w="512" data-h="1024">Страница 1:2</div>
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-label">Кол-во картинок</div>
-            <div class="count-row">
-              <button class="count-btn" onclick="changeCount(-1)">−</button>
-              <span style="font-size:14px;font-weight:600;min-width:20px;text-align:center" id="gen-count-val">1</span>
-              <button class="count-btn" onclick="changeCount(1)">+</button>
-              <span style="font-size:12px;color:var(--text3)">макс 4</span>
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-label">🕷️ Быстрые промпты</div>
-            <div class="quick-prompts">
-              <button class="quick-prompt" onclick="qp(this)">Spider-Man swinging through New York City at night, rain, dramatic lighting</button>
-              <button class="quick-prompt" onclick="qp(this)">Spider-Man vs Venom brutal street fight, dark alley, intense action, blood</button>
-              <button class="quick-prompt" onclick="qp(this)">Green Goblin flying on glider over burning city, cackling, menacing</button>
-              <button class="quick-prompt" onclick="qp(this)">Spider-Man mask cracked, exhausted, standing up after beating, rain, determination</button>
-              <button class="quick-prompt" onclick="qp(this)">Doctor Octopus tentacles smashing laboratory, chaos and destruction</button>
-              <button class="quick-prompt" onclick="qp(this)">Sinister Six assembled in darkness, all villains ready for battle</button>
-              <button class="quick-prompt" onclick="qp(this)">Spider-Man close-up epic splash page, web shooting, city background</button>
-              <button class="quick-prompt" onclick="qp(this)">Shocker robbing bank, police cars outside, electric blast, gritty urban</button>
-            </div>
-          </div>
-        </div>
-        <div class="ai-panel-footer">
-          <textarea class="prompt-input" id="ai-prompt" placeholder="Опиши что нарисовать... Можно по-русски или по-английски!" rows="3"></textarea>
-          <button class="gen-btn" id="gen-btn" onclick="generateImages()">
-            <span id="gen-btn-text">🎨 Генерировать</span>
-          </button>
-        </div>
-      </div>
-      <div class="ai-results" id="ai-results">
-        <div class="ai-empty" id="ai-empty">
-          <div style="font-size:64px;opacity:0.3">🎨</div>
-          <div style="font-family:'Bangers',cursive;font-size:24px;letter-spacing:1px;color:var(--text2)">Жди крутых картинок!</div>
-          <div style="font-size:13px;max-width:280px;line-height:1.6">Выбери стиль, напиши промпт и жми Генерировать.<br>Бесплатно, без регистрации, без ограничений.</div>
-        </div>
-        <div class="results-grid" id="results-grid" style="display:none"></div>
-      </div>
-    </div>
-  </div>
+<!-- DETAIL -->
+<div class="pg" id="p-detail">
+<button class="btn bg bs" onclick="goBack()" style="margin-bottom:20px">← Назад</button>
+<div class="dh" id="det-h"></div>
+<div class="divider"></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-family:'Bangers',cursive;font-size:26px">Главы</div><button class="btn ba bs" id="add-ch-btn" onclick="openNewChapter()">+ Глава</button></div>
+<div class="ch-list" id="det-chs"></div>
+<div id="det-no-ch" class="emp" style="display:none;padding:30px 0"><div class="emp-i">📄</div><div class="emp-t">Нет глав</div></div>
+<div class="divider"></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-family:'Bangers',cursive;font-size:26px">Отзывы</div><div id="avg-rat" style="font-family:'Bangers',cursive;font-size:20px;color:var(--acc)"></div></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:13px;color:var(--t3)">Оценка:</span><div class="stars" id="new-stars"></div><span id="star-val" style="font-size:13px;color:var(--t3)">—</span></div>
+<textarea id="cm-text" placeholder="Напиши отзыв..." rows="2" style="margin-bottom:8px"></textarea>
+<div style="margin-bottom:12px"><button class="btn ba bs" onclick="postComment()">💬 Отправить</button></div>
+<div class="cm-list" id="cm-list"></div>
+</div>
 
-  <!-- EDITOR PAGE -->
-  <div class="page" id="page-editor" style="padding:0">
-    <div class="editor-page">
-      <div class="editor-toolbar">
-        <div class="tool-group">
-          <div class="tlabel">Инструмент</div>
-          <button class="tool-btn active" id="tool-pen" onclick="setTool('pen')" title="Кисть (B)">✏️</button>
-          <button class="tool-btn" id="tool-eraser" onclick="setTool('eraser')" title="Ластик (E)">🧹</button>
-          <button class="tool-btn" id="tool-line" onclick="setTool('line')" title="Линия (L)">📏</button>
-          <button class="tool-btn" id="tool-fill" onclick="setTool('fill')" title="Заливка (F)">🪣</button>
-        </div>
-        <div class="tool-group">
-          <div class="tlabel">Размер</div>
-          <input type="range" class="tslider" id="brush-size" min="1" max="60" value="4" oninput="updateBrush()"/>
-          <span class="tval" id="brush-size-val">4px</span>
-        </div>
-        <div class="tool-group">
-          <div class="tlabel">Цвет</div>
-          <input type="color" class="color-dot" id="brush-color" value="#111111" oninput="updateBrush()"/>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:160px">
-            <div onclick="setColor('#111111')" style="width:20px;height:20px;background:#111;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#ffffff')" style="width:20px;height:20px;background:#fff;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#e8503a')" style="width:20px;height:20px;background:#e8503a;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#f5c842')" style="width:20px;height:20px;background:#f5c842;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#5b8dee')" style="width:20px;height:20px;background:#5b8dee;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#4caf7d')" style="width:20px;height:20px;background:#4caf7d;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#9b59b6')" style="width:20px;height:20px;background:#9b59b6;border-radius:4px;cursor:pointer"></div>
-            <div onclick="setColor('#e67e22')" style="width:20px;height:20px;background:#e67e22;border-radius:4px;cursor:pointer"></div>
-          </div>
-        </div>
-        <div class="tool-group">
-          <div class="tlabel">Подложка</div>
-          <input type="range" class="tslider" id="ref-opacity" min="0" max="100" value="30" oninput="updateRefOpacity()"/>
-          <span class="tval" id="ref-opacity-val">30%</span>
-          <button class="tool-btn" id="toggle-ref-btn" onclick="toggleRef()" title="Показать/скрыть подложку">👁</button>
-        </div>
-        <div class="tool-group">
-          <button class="tool-btn" onclick="undoDraw()" title="Отмена Ctrl+Z">↩️</button>
-          <button class="tool-btn" onclick="redoDraw()" title="Повтор Ctrl+Y">↪️</button>
-          <button class="tool-btn" onclick="clearDraw()" title="Очистить">🗑️</button>
-        </div>
-        <div class="tool-group">
-          <button class="btn btn-ghost btn-sm" onclick="loadRefImage()" title="Загрузить подложку">📁 Подложка</button>
-          <button class="btn btn-accent btn-sm" onclick="saveDrawing()">💾 Сохранить PNG</button>
-          <button class="btn btn-ghost btn-sm" onclick="addDrawingToChapter()">➕ В главу</button>
-        </div>
-      </div>
-      <div class="editor-wrap" id="editor-wrap">
-        <canvas id="refCanvas"></canvas>
-        <canvas id="drawCanvas" style="cursor:crosshair"></canvas>
-        <div class="ed-status" id="ed-status">Загрузи подложку (картинку от ИИ) и обводи!</div>
-      </div>
-    </div>
-    <input type="file" id="ref-file-input" accept="image/*" style="display:none" onchange="onRefFileLoad(event)"/>
-  </div>
+<!-- PROFILE -->
+<div class="pg" id="p-profile">
+<button class="btn bg bs" onclick="go('catalog')" style="margin-bottom:20px">← Назад</button>
+<div class="profile-hd"><div class="profile-av" id="prof-av">👤</div><div><div style="font-family:'Bangers',cursive;font-size:28px" id="prof-name"></div><div style="font-size:13px;color:var(--t3)" id="prof-stats"></div><button class="btn bg bs" id="prof-sub-btn" onclick="toggleSub()" style="margin-top:8px">🔔 Подписаться</button></div></div>
+<div style="font-family:'Bangers',cursive;font-size:22px;margin-bottom:12px">Комиксы автора</div>
+<div id="prof-grid" class="cg"></div>
+</div>
+
+<!-- READER -->
+<div class="pg" id="p-reader" style="padding:0;background:#000">
+<div style="position:sticky;top:0;z-index:50;background:rgba(0,0,0,.9);padding:10px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,.06)">
+<button class="btn bg bs" onclick="go('detail')">← Выйти</button>
+<div style="font-weight:600;flex:1" id="rd-title"></div>
+<div style="display:flex;gap:8px;overflow-x:auto" id="rd-chbar"></div>
+</div>
+<div class="rd-pages" id="rd-pages"></div>
+<div class="rd-nav"><button class="btn bg" id="pch" onclick="rdPrev()">←</button><span style="font-size:13px;color:var(--t3)" id="rd-label"></span><button class="btn bg" id="nch" onclick="rdNext()">→</button></div>
+</div>
+
+<!-- AI -->
+<div class="pg" id="p-ai" style="padding:0">
+<div style="display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 57px)">
+<div style="background:var(--bg2);border-right:1px solid var(--bor);display:flex;flex-direction:column">
+<div style="padding:18px 20px 14px;border-bottom:1px solid var(--bor)"><div style="font-family:'Bangers',cursive;font-size:20px">🤖 ИИ Генератор</div><div style="font-size:12px;color:var(--t3)">Pollinations.ai · Бесплатно</div></div>
+<div style="flex:1;overflow-y:auto;padding:16px 20px">
+<div style="margin-bottom:14px"><div style="font-size:12px;color:var(--t2);margin-bottom:6px">Стиль</div><div style="display:flex;flex-wrap:wrap;gap:6px" id="ai-styles"><div class="chip on" data-v="comic book art, bold outlines">Комикс</div><div class="chip" data-v="manga style, black and white">Манга</div><div class="chip" data-v="dark gritty comic, noir">Тёмный</div><div class="chip" data-v="superhero comic, Marvel, dynamic">Супергерои</div><div class="chip" data-v="anime style, colorful">Аниме</div></div></div>
+<div style="margin-bottom:14px"><div style="font-size:12px;color:var(--t2);margin-bottom:6px">Формат</div><div style="display:flex;flex-wrap:wrap;gap:6px" id="ai-ratios"><div class="chip on" data-w="768" data-h="1024">Портрет</div><div class="chip" data-w="1024" data-h="768">Пейзаж</div><div class="chip" data-w="1024" data-h="1024">Квадрат</div></div></div>
+</div>
+<div style="padding:14px 20px;border-top:1px solid var(--bor)">
+<textarea style="width:100%;background:var(--bg3);border:1px solid var(--bor2);border-radius:var(--r);color:var(--t);font-family:inherit;font-size:14px;padding:10px;outline:none;resize:none;min-height:80px" id="ai-prompt" placeholder="Опиши что нарисовать..."></textarea>
+<button class="btn ba" style="width:100%;justify-content:center;margin-top:10px" onclick="aiGen()" id="ai-btn">🎨 Генерировать</button>
+</div>
+</div>
+<div style="flex:1;background:var(--bg);overflow-y:auto;padding:20px"><div id="ai-emp" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--t3);text-align:center;gap:12px"><div style="font-size:64px;opacity:.3">🎨</div><div style="font-family:'Bangers',cursive;font-size:24px;color:var(--t2)">Генерируй!</div></div><div class="cg" id="ai-grid" style="display:none"></div></div>
+</div>
+</div>
+
+<!-- EDITOR -->
+<div class="pg" id="p-editor" style="padding:0">
+<div style="height:calc(100vh - 57px);display:flex;flex-direction:column">
+<div class="ed-tb">
+<div class="tg"><button class="tb on" id="e-pen" onclick="eTool('pen')">✏️</button><button class="tb" id="e-eraser" onclick="eTool('eraser')">🧹</button><button class="tb" id="e-line" onclick="eTool('line')">📏</button><button class="tb" id="e-fill" onclick="eTool('fill')">🪣</button></div>
+<div class="tg"><span style="font-size:12px;color:var(--t3)">Размер</span><input type="range" class="ts" id="e-size" min="1" max="60" value="4" oninput="eBrush()"/><span class="tv" id="e-sv">4</span></div>
+<div class="tg"><span style="font-size:12px;color:var(--t3)">Цвет</span><input type="color" style="width:28px;height:28px;border-radius:6px;border:2px solid var(--bor2);cursor:pointer;padding:0" id="e-color" value="#111111" oninput="eBrush()"/></div>
+<div class="tg"><span style="font-size:12px;color:var(--t3)">Подложка</span><input type="range" class="ts" id="e-opa" min="0" max="100" value="30" oninput="eRefOpa()"/><span class="tv" id="e-ov">30%</span><button class="tb" onclick="eTogRef()">👁</button></div>
+<div class="tg"><button class="tb" onclick="eUndo()">↩️</button><button class="tb" onclick="eClear()">🗑️</button></div>
+<div class="tg"><button class="btn bg bs" onclick="eLoadRef()">📁 Подложка</button><button class="btn ba bs" onclick="eSave()">💾 Скачать</button></div>
+</div>
+<div style="flex:1;overflow:hidden;position:relative;background:#0a0a0a" id="e-wrap">
+<canvas id="eRC" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+<canvas id="eDC" style="position:absolute;top:0;left:0;cursor:crosshair;touch-action:none"></canvas>
+</div>
+<input type="file" id="e-fi" accept="image/*" style="display:none" onchange="eOnRef(event)"/>
+</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="pg" id="p-panel" style="padding:28px">
+<div style="font-family:'Bangers',cursive;font-size:32px;margin-bottom:24px">⚙️ Админ-панель</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+<div style="background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);padding:20px"><div style="font-family:'Bangers',cursive;font-size:20px;margin-bottom:12px">🔌 Сервис</div><div style="display:flex;gap:8px;margin-bottom:8px"><button class="btn ba bs" onclick="toggleSvc(true)">🟢 Вкл</button><button class="btn bd bs" onclick="oModal('m-disable')">🔴 Откл</button></div><div style="font-size:12px;color:var(--t3)" id="svc-st">Загрузка...</div></div>
+<div style="background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);padding:20px"><div style="font-family:'Bangers',cursive;font-size:20px;margin-bottom:12px">📢 Объявление</div><input type="text" id="ann-inp" placeholder="Текст объявления..." style="margin-bottom:8px"/><button class="btn ba bs" onclick="setAnnounce()">Опубликовать</button></div>
+</div>
+<div style="background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);padding:20px;margin-bottom:20px"><div style="font-family:'Bangers',cursive;font-size:20px;margin-bottom:12px">👥 Пользователи</div><div id="panel-users"></div></div>
+<div style="background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);padding:20px"><div style="font-family:'Bangers',cursive;font-size:20px;margin-bottom:12px">🗄️ База данных</div><div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn ba bs" onclick="loadPanelDB()">🔄 Обновить</button><button class="btn bd bs" onclick="purgeAll()">💀 Удалить ВСЕ</button></div><div id="panel-db"></div></div>
+</div>
+
+<!-- CHANGELOG PAGE -->
+<div class="pg" id="p-changelog">
+<div style="font-family:'Bangers',cursive;font-size:32px;margin-bottom:20px">📋 Лента обновлений</div>
+<div id="changelog-full"></div>
+</div>
 </main>
 
 <!-- MODALS -->
-<div class="modal-overlay hidden" id="modal-comic">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-comic-title">Новый комикс</div>
-      <button class="modal-close" onclick="closeModal('modal-comic')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row-2">
-        <div>
-          <div class="form-row"><label>Название *</label><input type="text" id="comic-name" placeholder="Название..."/></div>
-          <div class="form-row"><label>Жанр</label><input type="text" id="comic-genre" placeholder="Экшн, Фэнтези..."/></div>
-          <div class="form-row"><label>Статус</label>
-            <select id="comic-status">
-              <option value="draft">Черновик</option>
-              <option value="published">Опубликован</option>
-              <option value="ongoing">В процессе</option>
-              <option value="completed">Завершён</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label>Обложка</label>
-          <div class="cover-upload">
-            <input type="file" id="comic-cover-input" accept="image/*" onchange="previewCover(event)"/>
-            <div id="cover-preview-container"><div class="cover-emoji">🎨</div><div class="upload-hint">Нажми чтобы выбрать</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row"><label>Описание</label><textarea id="comic-desc" rows="3" placeholder="О чём комикс?"></textarea></div>
-      <div class="form-row-2">
-        <div class="form-row" style="margin-bottom:0"><label>Эмодзи</label><input type="text" id="comic-emoji" placeholder="🦸" maxlength="2" style="width:80px"/></div>
-        <div class="form-row" style="margin-bottom:0"><label>Цвет фона</label><input type="color" id="comic-color" value="#1a1a2e" style="width:60px;height:36px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--border2);background:none"/></div>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-ghost" onclick="closeModal('modal-comic')">Отмена</button>
-        <button class="btn btn-accent" onclick="saveComic()">💾 Сохранить</button>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="mo hidden" id="m-comic"><div class="md wide"><div class="md-h"><div class="md-t" id="mc-t">Новый комикс</div><button class="md-x" onclick="cModal('m-comic')">✕</button></div><div class="md-b">
+<div class="fr2"><div><div class="fr"><label>Название *</label><input type="text" id="c-name"/></div><div class="fr"><label>Жанр</label><input type="text" id="c-genre" placeholder="Экшн, Хоррор..."/></div><div class="fr"><label>Теги</label><input type="text" id="c-tags" placeholder="паук, марвел..."/></div><div class="fr"><label>Статус</label><select id="c-status"><option value="draft">Черновик</option><option value="published">Опубликован</option><option value="ongoing">В процессе</option></select></div></div><div><label>Обложка</label><div style="border:2px dashed var(--bor2);border-radius:var(--r2);padding:24px;text-align:center;position:relative;overflow:hidden"><input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="prevCover(event)"/><div id="cov-prev"><div style="font-size:36px;margin-bottom:8px">🎨</div><div style="font-size:13px;color:var(--t3)">Выбрать</div></div></div></div></div>
+<div class="fr"><label>Описание</label><textarea id="c-desc" rows="3"></textarea></div>
+<div class="fr2"><div class="fr" style="margin-bottom:0"><label>Эмодзи</label><input type="text" id="c-emoji" value="📖" maxlength="2" style="width:80px"/></div><div class="fr" style="margin-bottom:0"><label>Цвет</label><input type="color" id="c-color" value="#1a1a2e" style="width:60px;height:36px"/></div></div>
+<div class="fa"><button class="btn bg" onclick="cModal('m-comic')">Отмена</button><button class="btn ba" onclick="saveComic()">💾 Сохранить</button></div>
+</div></div></div>
 
-<div class="modal-overlay hidden" id="modal-chapter">
-  <div class="modal wide">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-chapter-title">Новая глава</div>
-      <button class="modal-close" onclick="closeModal('modal-chapter')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row-2">
-        <div class="form-row" style="margin-bottom:0"><label>Название главы</label><input type="text" id="chapter-name" placeholder="Глава 1: Начало..."/></div>
-        <div class="form-row" style="margin-bottom:0"><label>Номер</label><input type="number" id="chapter-num" min="1" value="1"/></div>
-      </div>
-      <div style="margin-top:16px"><label>Страницы</label>
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="openChapterDrawEditor('blank')">✏️ Нарисовать страницу</button>
-          <button class="btn btn-ghost btn-sm" onclick="openChapterDrawEditor('upload')">📁 Загрузить и обвести</button>
-          <button class="btn btn-accent btn-sm admin-only" onclick="openChapterDrawEditor('ai')" style="display:none">🤖 ИИ + обвести</button>
-        </div>
-        <div class="pages-grid" id="chapter-pages-grid"></div>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-ghost" onclick="closeModal('modal-chapter')">Отмена</button>
-        <button class="btn btn-accent" onclick="saveChapter()">💾 Сохранить главу</button>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="mo hidden" id="m-chap"><div class="md wide"><div class="md-h"><div class="md-t" id="mch-t">Новая глава</div><button class="md-x" onclick="cModal('m-chap')">✕</button></div><div class="md-b">
+<div class="fr2"><div class="fr" style="margin-bottom:0"><label>Название</label><input type="text" id="ch-name"/></div><div class="fr" style="margin-bottom:0"><label>Номер</label><input type="number" id="ch-num" min="1" value="1"/></div></div>
+<div style="margin-top:16px"><label>Страницы</label>
+<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"><button class="btn bg bs" onclick="openDraw('blank')">✏️ Нарисовать</button><button class="btn bg bs" onclick="openDraw('upload')">📁 Обвести</button><button class="btn ba bs staff-only" onclick="openDraw('ai')" style="display:none">🤖 ИИ</button></div>
+<div class="pgs" id="ch-pgs"></div></div>
+<div class="fa"><button class="btn bg" onclick="cModal('m-chap')">Отмена</button><button class="btn ba" onclick="saveChapter()">💾 Сохранить</button></div>
+</div></div></div>
 
-<div class="modal-overlay hidden" id="modal-confirm">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-header">
-      <div class="modal-title" id="confirm-title">Удалить?</div>
-      <button class="modal-close" onclick="closeModal('modal-confirm')">✕</button>
-    </div>
-    <div class="modal-body">
-      <p id="confirm-text" style="color:var(--text2);margin-bottom:20px;font-size:14px"></p>
-      <div class="form-actions">
-        <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Отмена</button>
-        <button class="btn btn-danger" id="confirm-ok-btn">Удалить</button>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="mo hidden" id="m-confirm"><div class="md" style="max-width:400px"><div class="md-h"><div class="md-t" id="cf-t">Удалить?</div><button class="md-x" onclick="cModal('m-confirm')">✕</button></div><div class="md-b"><p id="cf-txt" style="color:var(--t2);margin-bottom:20px"></p><div class="fa"><button class="btn bg" onclick="cModal('m-confirm')">Отмена</button><button class="btn bd" id="cf-ok">Удалить</button></div></div></div></div>
 
-<!-- CHAPTER DRAW EDITOR -->
-<div class="modal-overlay hidden" id="modal-draw-editor">
-  <div class="modal fullscreen" style="max-width:98vw;width:98vw;max-height:96vh;height:96vh;display:flex;flex-direction:column;overflow:hidden">
-    <div class="modal-header" style="padding:10px 16px;flex-shrink:0">
-      <div class="modal-title" id="draw-editor-title">✏️ Нарисовать страницу</div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn btn-accent btn-sm" onclick="savePageFromDrawEditor()">💾 Добавить страницу</button>
-        <button class="modal-close" onclick="closeModal('modal-draw-editor')">✕</button>
-      </div>
-    </div>
-    <!-- AI prompt row (admin only) -->
-    <div id="draw-editor-ai-row" style="display:none;padding:8px 16px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;align-items:center;flex-wrap:wrap" class="flex-row">
-      <input type="text" id="draw-editor-ai-prompt" placeholder="Промпт для ИИ..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:13px;outline:none"/>
-      <button class="btn btn-accent btn-sm" onclick="genAIForEditor()">🎨 Сгенерировать подложку</button>
-      <span id="draw-editor-ai-status" style="font-size:12px;color:var(--text3)"></span>
-    </div>
-    <!-- Toolbar -->
-    <div class="editor-toolbar" style="flex-shrink:0">
-      <div class="tool-group">
-        <button class="tool-btn active" id="de-tool-pen" onclick="deTool('pen')" title="Кисть">✏️</button>
-        <button class="tool-btn" id="de-tool-eraser" onclick="deTool('eraser')" title="Ластик">🧹</button>
-        <button class="tool-btn" id="de-tool-line" onclick="deTool('line')" title="Линия">📏</button>
-        <button class="tool-btn" id="de-tool-fill" onclick="deTool('fill')" title="Заливка">🪣</button>
-      </div>
-      <div class="tool-group">
-        <span class="tlabel">Размер</span>
-        <input type="range" class="tslider" id="de-brush-size" min="1" max="60" value="4" oninput="deUpdateBrush()"/>
-        <span class="tval" id="de-brush-size-val">4px</span>
-      </div>
-      <div class="tool-group">
-        <span class="tlabel">Цвет</span>
-        <input type="color" class="color-dot" id="de-brush-color" value="#111111" oninput="deUpdateBrush()"/>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:160px">
-          <div onclick="deSetColor('#111111')" style="width:20px;height:20px;background:#111;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
-          <div onclick="deSetColor('#ffffff')" style="width:20px;height:20px;background:#fff;border:1px solid #444;border-radius:4px;cursor:pointer"></div>
-          <div onclick="deSetColor('#e8503a')" style="width:20px;height:20px;background:#e8503a;border-radius:4px;cursor:pointer"></div>
-          <div onclick="deSetColor('#f5c842')" style="width:20px;height:20px;background:#f5c842;border-radius:4px;cursor:pointer"></div>
-          <div onclick="deSetColor('#5b8dee')" style="width:20px;height:20px;background:#5b8dee;border-radius:4px;cursor:pointer"></div>
-          <div onclick="deSetColor('#4caf7d')" style="width:20px;height:20px;background:#4caf7d;border-radius:4px;cursor:pointer"></div>
-          <div onclick="deSetColor('#9b59b6')" style="width:20px;height:20px;background:#9b59b6;border-radius:4px;cursor:pointer"></div>
-        </div>
-      </div>
-      <div class="tool-group">
-        <span class="tlabel">Подложка</span>
-        <input type="range" class="tslider" id="de-ref-opacity" min="0" max="100" value="30" oninput="deUpdateRef()"/>
-        <span class="tval" id="de-ref-opacity-val">30%</span>
-        <button class="tool-btn" onclick="deToggleRef()" id="de-toggle-ref">👁</button>
-      </div>
-      <div class="tool-group">
-        <button class="tool-btn" onclick="deUndo()" title="Отмена">↩️</button>
-        <button class="tool-btn" onclick="deClear()" title="Очистить">🗑️</button>
-        <button class="btn btn-ghost btn-sm" onclick="deLoadRef()" id="de-load-ref-btn">📁 Загрузить подложку</button>
-        <input type="file" id="de-ref-file" accept="image/*" style="display:none" onchange="deOnRefFile(event)"/>
-      </div>
-    </div>
-    <div style="flex:1;overflow:hidden;position:relative;background:#0a0a0a;display:flex;align-items:center;justify-content:center" id="de-wrap">
-      <canvas id="deRefCanvas" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
-      <canvas id="deDrawCanvas" style="position:absolute;top:0;left:0;cursor:crosshair;touch-action:none"></canvas>
-      <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);padding:5px 14px;border-radius:20px;font-size:12px;color:var(--text3);pointer-events:none" id="de-status">Рисуй!</div>
-    </div>
-  </div>
-</div>
+<div class="mo hidden" id="m-admin"><div class="md" style="max-width:420px"><div class="md-h"><div class="md-t">🔐 Запросить Права</div><button class="md-x" onclick="cModal('m-admin')">✕</button></div><div class="md-b">
+<div class="fr"><label>Роль</label><div style="display:flex;gap:8px"><button class="btn ba" id="r-adm" onclick="selRole='admin';document.getElementById('r-adm').className='btn ba';document.getElementById('r-mod').className='btn bg'" style="flex:1;justify-content:center">👑 Админ</button><button class="btn bg" id="r-mod" onclick="selRole='mod';document.getElementById('r-mod').className='btn ba';document.getElementById('r-adm').className='btn bg'" style="flex:1;justify-content:center">🛡️ Модератор</button></div></div>
+<div class="fr"><label>Пароль</label><input type="password" id="adm-pw"/></div>
+<div class="fa"><button class="btn bg" onclick="cModal('m-admin')">Отмена</button><button class="btn ba" onclick="doAdmLogin()">Войти</button></div>
+</div></div></div>
 
-<div class="modal-overlay hidden" id="modal-admin">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-header">
-      <div class="modal-title">🔐 Права Администратора</div>
-      <button class="modal-close" onclick="closeModal('modal-admin')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <label>Пароль</label>
-        <input type="password" id="admin-pass-input" placeholder="Введи пароль..." />
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-ghost" onclick="closeModal('modal-admin')">Отмена</button>
-        <button class="btn btn-accent" onclick="submitAdminPass()">Войти 👑</button>
-      </div>
-    </div>
-  </div>
+<div class="mo hidden" id="m-disable"><div class="md" style="max-width:400px"><div class="md-h"><div class="md-t">🔴 Отключить сервис</div><button class="md-x" onclick="cModal('m-disable')">✕</button></div><div class="md-b"><div class="fr"><label>Причина</label><textarea id="dis-reason" rows="3"></textarea></div><div class="fa"><button class="btn bg" onclick="cModal('m-disable')">Отмена</button><button class="btn bd" onclick="toggleSvc(false)">Отключить</button></div></div></div></div>
+
+<!-- DRAW MODAL -->
+<div class="mo hidden" id="m-draw"><div class="md" style="max-width:98vw;width:98vw;max-height:96vh;height:96vh;display:flex;flex-direction:column;overflow:hidden">
+<div class="md-h" style="padding:10px 16px;flex-shrink:0"><div class="md-t" id="drw-t">✏️</div><div style="display:flex;gap:8px"><button class="btn ba bs" onclick="drawSave()">💾 Добавить</button><button class="md-x" onclick="cModal('m-draw')">✕</button></div></div>
+<div id="drw-ai" style="display:none;padding:8px 16px;background:var(--bg3);border-bottom:1px solid var(--bor);display:flex;gap:8px;align-items:center;flex-shrink:0"><input type="text" id="drw-pr" placeholder="Промпт..." style="flex:1;padding:7px 10px;background:var(--bg4);border:1px solid var(--bor2);border-radius:var(--r);color:var(--t);font-size:13px;outline:none"/><button class="btn ba bs" onclick="drwAi()">🎨</button><span id="drw-st" style="font-size:12px;color:var(--t3)"></span></div>
+<div class="ed-tb" style="flex-shrink:0">
+<div class="tg"><button class="tb on" id="d-pen" onclick="dTool('pen')">✏️</button><button class="tb" id="d-eraser" onclick="dTool('eraser')">🧹</button><button class="tb" id="d-line" onclick="dTool('line')">📏</button><button class="tb" id="d-fill" onclick="dTool('fill')">🪣</button></div>
+<div class="tg"><input type="range" class="ts" id="d-size" min="1" max="60" value="4" oninput="dBrush()"/><span class="tv" id="d-sv">4</span></div>
+<div class="tg"><input type="color" style="width:28px;height:28px;border-radius:6px;border:2px solid var(--bor2);cursor:pointer;padding:0" id="d-color" value="#111111" oninput="dBrush()"/></div>
+<div class="tg"><input type="range" class="ts" id="d-opa" min="0" max="100" value="30" oninput="dRefOpa()"/><span class="tv" id="d-ov">30%</span><button class="tb" onclick="dTogRef()">👁</button></div>
+<div class="tg"><button class="tb" onclick="dUndo()">↩️</button><button class="tb" onclick="dClr()">🗑️</button><button class="btn bg bs" onclick="document.getElementById('d-fi').click()">📁</button></div>
 </div>
+<div style="flex:1;overflow:hidden;position:relative;background:#0a0a0a" id="d-wrap">
+<canvas id="dRC" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+<canvas id="dDC" style="position:absolute;top:0;left:0;cursor:crosshair;touch-action:none"></canvas>
+</div>
+<input type="file" id="d-fi" accept="image/*" style="display:none" onchange="dOnRef(event)"/>
+</div></div>
 
 <div class="toast" id="toast"></div>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-let DB=JSON.parse(localStorage.getItem('comicshub_db')||'null')||{comics:[],nextId:1};
-let currentPage='catalog',prevPage='catalog',currentComicId=null,editingComicId=null,editingChapterId=null;
-let readerComicId=null,readerChapterIdx=0,pendingChapterPages=[],searchQuery='',activeGenre='all';
+firebase.initializeApp({apiKey:"AIzaSyBDEjPPTEAxSggropnQLE8xOEs1ciZ9x8M",authDomain:"comicshubserver-fd0ba.firebaseapp.com",projectId:"comicshubserver-fd0ba",storageBucket:"comicshubserver-fd0ba.firebasestorage.app",messagingSenderId:"57190112016",appId:"1:57190112016:web:06ee2e98256d04464ae395"});
+var db=null;
+try{
+  firebase.initializeApp({apiKey:"AIzaSyBDEjPPTEAxSggropnQLE8xOEs1ciZ9x8M",authDomain:"comicshubserver-fd0ba.firebaseapp.com",projectId:"comicshubserver-fd0ba",storageBucket:"comicshubserver-fd0ba.firebasestorage.app",messagingSenderId:"57190112016",appId:"1:57190112016:web:06ee2e98256d04464ae395"});
+  db=firebase.firestore();
+  console.log('Firebase OK');
+}catch(e){console.warn('Firebase failed, using localStorage',e)}
 
-function showPage(name){
-  prevPage=currentPage;currentPage=name;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===name));
-  const titles={catalog:'Каталог',drafts:'Черновики',detail:'Комикс',reader:'Читалка',ai:'🤖 ИИ Генератор',editor:'🎨 Редактор обводки'};
-  document.getElementById('topbar-title').textContent=titles[name]||'';
-  if(name==='catalog')renderCatalog();
-  if(name==='drafts')renderDrafts();
-  if(name==='editor')initEditorPage();
-  updateStats();
+// Fallback functions for when Firebase is unavailable
+function fbSave(col,id,data){
+  if(db){return db.collection(col).doc(id).set(data)}
+  var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');all[id]=data;localStorage.setItem('ch_'+col,JSON.stringify(all));return Promise.resolve();
 }
-function goBack(){showPage(prevPage==='detail'?'catalog':prevPage==='reader'?'detail':prevPage||'catalog')}
-
-function getGenres(){const g=new Set();DB.comics.filter(c=>c.status!=='draft').forEach(c=>{if(c.genre)c.genre.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>g.add(x))});return[...g]}
-function renderGenreFilter(){
-  const bar=document.getElementById('genre-filter-bar'),genres=getGenres();bar.innerHTML='';
-  if(!genres.length)return;
-  const all=document.createElement('button');all.className='btn btn-sm '+(activeGenre==='all'?'btn-accent':'btn-ghost');all.textContent='Все';all.onclick=()=>{activeGenre='all';renderCatalog()};bar.appendChild(all);
-  genres.forEach(g=>{const b=document.createElement('button');b.className='btn btn-sm '+(activeGenre===g?'btn-accent':'btn-ghost');b.textContent=g;b.onclick=()=>{activeGenre=g;renderCatalog()};bar.appendChild(b)});
+function fbAdd(col,data){
+  var id='_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  if(db){return db.collection(col).add(data).then(function(ref){return ref})}
+  data._id=id;var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');all[id]=data;localStorage.setItem('ch_'+col,JSON.stringify(all));return Promise.resolve({id:id});
 }
-function renderCatalog(){
-  renderGenreFilter();
-  let comics=DB.comics.filter(c=>c.status!=='draft');
-  if(searchQuery)comics=comics.filter(c=>c.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  if(activeGenre!=='all')comics=comics.filter(c=>c.genre&&c.genre.toLowerCase().includes(activeGenre.toLowerCase()));
-  const grid=document.getElementById('catalog-grid'),empty=document.getElementById('catalog-empty');
-  grid.innerHTML='';
-  if(!comics.length){empty.style.display='';grid.style.display='none';return}
-  empty.style.display='none';grid.style.display='';
-  comics.forEach(c=>grid.appendChild(makeComicCard(c)));
+function fbDel(col,id){
+  if(db){return db.collection(col).doc(id).delete()}
+  var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');delete all[id];localStorage.setItem('ch_'+col,JSON.stringify(all));return Promise.resolve();
 }
-function renderDrafts(){
-  let comics=DB.comics.filter(c=>c.status==='draft');
-  if(searchQuery)comics=comics.filter(c=>c.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  const grid=document.getElementById('drafts-grid'),empty=document.getElementById('drafts-empty');
-  grid.innerHTML='';
-  if(!comics.length){empty.style.display='';grid.style.display='none';return}
-  empty.style.display='none';grid.style.display='';
-  comics.forEach(c=>grid.appendChild(makeComicCard(c)));
+function fbGet(col){
+  if(db){return db.collection(col).get()}
+  var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');var docs=[];Object.keys(all).forEach(function(k){docs.push({id:k,data:function(){return all[k]},ref:{delete:function(){return fbDel(col,k)}}})});return Promise.resolve({forEach:function(fn){docs.forEach(fn)},size:docs.length,empty:docs.length===0});
 }
-function makeComicCard(comic){
-  const card=document.createElement('div');card.className='comic-card';
-  const chapCount=(comic.chapters||[]).length;
-  const pageCount=(comic.chapters||[]).reduce((a,c)=>a+(c.pages||[]).length,0);
-  let coverHTML=comic.cover?`<div style="position:relative;width:100%;aspect-ratio:2/3;overflow:hidden"><img src="${comic.cover}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>`:`<div class="comic-cover-gradient" style="background:linear-gradient(135deg,${comic.color||'#1a1a2e'} 0%,#000 100%);position:relative"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:52px">${comic.emoji||'📖'}</span>${comic.name}</div>`;
-  const adminActions=isAdmin?`<div class="comic-card-actions">
-      <button class="card-action-btn" onclick="event.stopPropagation();openEditComicModal(${comic.id})">✏️</button>
-      <button class="card-action-btn del" onclick="event.stopPropagation();confirmDeleteComic(${comic.id})">🗑️</button>
-    </div>`:'';
-  const badge=comic.status==='draft'?`<div class="draft-badge">ЧЕРНОВИК</div>`:'';
-  card.innerHTML=`<div style="position:relative">${coverHTML}${badge}</div>
-    ${adminActions}
-    <div class="comic-info">
-      <div class="comic-title">${comic.name}</div>
-      <div class="comic-meta"><span>📄 ${chapCount} ${declChap(chapCount)}</span><span>·</span><span>${pageCount} стр.</span></div>
-    </div>`;
-  card.onclick=()=>openComicDetail(comic.id);return card;
+function fbQuery(col,field,op,val){
+  if(db){return db.collection(col).where(field,op,val).get()}
+  var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');var docs=[];Object.keys(all).forEach(function(k){var d=all[k];if(op==='=='&&d[field]===val)docs.push({id:k,data:function(){return d},_id:k})});return Promise.resolve({forEach:function(fn){docs.forEach(fn)},empty:docs.length===0,size:docs.length});
 }
-function declChap(n){if(n%10===1&&n%100!==11)return'глава';if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return'главы';return'глав'}
-
-function openComicDetail(id){
-  currentComicId=id;const comic=DB.comics.find(c=>c.id===id);if(!comic)return;
-  const header=document.getElementById('detail-header');
-  let coverEl=comic.cover?`<img src="${comic.cover}" class="detail-cover"/>`:`<div class="detail-cover-placeholder" style="background:linear-gradient(135deg,${comic.color||'#1a1a2e'},#000)">${comic.emoji||'📖'}</div>`;
-  const sm={draft:'Черновик',published:'Опубликован',ongoing:'В процессе',completed:'Завершён'};
-  const sc=comic.status==='draft'?'tag-status-draft':'tag-status-pub';
-  const genres=comic.genre?comic.genre.split(',').map(g=>g.trim()).filter(Boolean):[];
-  header.innerHTML=`${coverEl}<div class="detail-info"><div class="detail-title">${comic.name}</div>
-    <div class="detail-tags"><span class="tag ${sc}">${sm[comic.status]||comic.status}</span>${genres.map(g=>`<span class="tag tag-genre">${g}</span>`).join('')}</div>
-    <div class="detail-desc">${comic.desc||'<em style="color:var(--text3)">Описание не добавлено</em>'}</div>
-    <div class="detail-actions">
-      ${isAdmin?`<button class="btn btn-accent btn-sm" onclick="openAddChapterModal()">+ Глава</button>`:''}
-      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openEditComicModal(${id})">✏️ Редактировать</button>`:''}
-      ${(comic.chapters||[]).length?`<button class="btn btn-ghost btn-sm" onclick="openReader(${id},0)">📖 Читать</button>`:''}
-    </div></div>`;
-  renderChapters(id);prevPage=currentPage;showPage('detail');
-  setTimeout(()=>renderComments(id),100);
+function fbListen(col,cb){
+  if(db){return db.collection(col).onSnapshot(cb)}
+  // localStorage fallback - poll every 2 seconds
+  function poll(){var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');var docs=[];Object.keys(all).forEach(function(k){docs.push({id:k,data:function(){return all[k]}})});cb({forEach:function(fn){docs.forEach(fn)}})}
+  poll();setInterval(poll,2000);
 }
-function renderChapters(comicId){
-  const comic=DB.comics.find(c=>c.id===comicId);
-  const list=document.getElementById('detail-chapters'),empty=document.getElementById('detail-no-chapters');
-  list.innerHTML='';
-  const chapters=(comic.chapters||[]).slice().sort((a,b)=>a.num-b.num);
-  if(!chapters.length){empty.style.display='';return}
-  empty.style.display='none';
-  chapters.forEach((ch,i)=>{
-    const item=document.createElement('div');item.className='chapter-item';
-    item.innerHTML=`<div class="chapter-num">${ch.num}</div>
-      <div class="chapter-info"><div class="chapter-title-text">${ch.name||'Глава '+ch.num}</div>
-        <div class="chapter-meta"><span>📄 ${(ch.pages||[]).length} стр.</span><span>${ch.createdAt?new Date(ch.createdAt).toLocaleDateString('ru-RU'):''}</span></div>
-      </div>
-      <div class="chapter-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openReader(${comicId},${i})">📖</button>
-        ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openEditChapterModal(${ch.id})">✏️</button>`:''}
-        ${isAdmin?`<button class="btn btn-danger btn-sm" onclick="confirmDeleteChapter(${ch.id})">🗑️</button>`:''}
-      </div>`;
-    list.appendChild(item);
-  });
-}
-
-function openReader(comicId,chapterIdx){readerComicId=comicId;readerChapterIdx=chapterIdx;renderReader();prevPage=currentPage;showPage('reader')}
-function renderReader(){
-  const comic=DB.comics.find(c=>c.id===readerComicId);
-  const chapters=(comic.chapters||[]).slice().sort((a,b)=>a.num-b.num);
-  const chapter=chapters[readerChapterIdx];
-  document.getElementById('reader-title').textContent=comic.name+(chapter?' — '+(chapter.name||'Глава '+chapter.num):'');
-  const bar=document.getElementById('reader-chapter-bar');bar.innerHTML='';
-  chapters.forEach((ch,i)=>{const b=document.createElement('button');b.className='chap-btn'+(i===readerChapterIdx?' active':'');b.textContent='Гл.'+ch.num;b.onclick=()=>{readerChapterIdx=i;renderReader()};bar.appendChild(b)});
-  const pagesEl=document.getElementById('reader-pages');pagesEl.innerHTML='';
-  if(chapter&&chapter.pages&&chapter.pages.length){
-    chapter.pages.forEach((p,i)=>{const img=document.createElement('img');img.src=p;img.className='reader-page-img';pagesEl.appendChild(img)});
-  } else {
-    pagesEl.innerHTML='<div class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">Страниц нет</div></div>';
-  }
-  document.getElementById('prev-chap-btn').disabled=readerChapterIdx===0;
-  document.getElementById('next-chap-btn').disabled=readerChapterIdx>=chapters.length-1;
-  document.getElementById('reader-chap-label').textContent=`Глава ${readerChapterIdx+1} из ${chapters.length}`;
-}
-function readerPrevChap(){if(readerChapterIdx>0){readerChapterIdx--;renderReader()}}
-function readerNextChap(){const comic=DB.comics.find(c=>c.id===readerComicId);if(readerChapterIdx<(comic.chapters||[]).length-1){readerChapterIdx++;renderReader()}}
-function closeReader(){showPage('detail')}
-
-function openAddComicModal(){
-  editingComicId=null;
-  document.getElementById('modal-comic-title').textContent='Новый комикс';
-  ['comic-name','comic-genre','comic-desc'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('comic-status').value='draft';
-  document.getElementById('comic-emoji').value='📖';
-  document.getElementById('comic-color').value='#1a1a2e';
-  document.getElementById('cover-preview-container').innerHTML='<div class="cover-emoji">🎨</div><div class="upload-hint">Нажми чтобы выбрать</div>';
-  window._coverData=null;openModal('modal-comic');
-}
-function openEditComicModal(id){
-  const comic=DB.comics.find(c=>c.id===id);if(!comic)return;
-  editingComicId=id;
-  document.getElementById('modal-comic-title').textContent='Редактировать комикс';
-  document.getElementById('comic-name').value=comic.name;
-  document.getElementById('comic-genre').value=comic.genre||'';
-  document.getElementById('comic-desc').value=comic.desc||'';
-  document.getElementById('comic-status').value=comic.status||'draft';
-  document.getElementById('comic-emoji').value=comic.emoji||'📖';
-  document.getElementById('comic-color').value=comic.color||'#1a1a2e';
-  window._coverData=comic.cover||null;
-  document.getElementById('cover-preview-container').innerHTML=comic.cover?`<img src="${comic.cover}" class="cover-preview"/><div class="upload-hint" style="font-size:12px">Нажми чтобы изменить</div>`:'<div class="cover-emoji">🎨</div><div class="upload-hint">Нажми чтобы выбрать</div>';
-  openModal('modal-comic');
-}
-function previewCover(event){
-  const file=event.target.files[0];if(!file)return;
-  const reader=new FileReader();reader.onload=e=>{window._coverData=e.target.result;document.getElementById('cover-preview-container').innerHTML=`<img src="${e.target.result}" class="cover-preview"/><div class="upload-hint" style="font-size:12px">Нажми чтобы изменить</div>`};reader.readAsDataURL(file);
-}
-function saveComic(){
-  const name=document.getElementById('comic-name').value.trim();if(!name){showToast('Введи название!','error');return}
-  if(editingComicId){
-    const comic=DB.comics.find(c=>c.id===editingComicId);
-    Object.assign(comic,{name,genre:document.getElementById('comic-genre').value.trim(),desc:document.getElementById('comic-desc').value.trim(),status:document.getElementById('comic-status').value,emoji:document.getElementById('comic-emoji').value||'📖',color:document.getElementById('comic-color').value});
-    if(window._coverData)comic.cover=window._coverData;
-    showToast('Обновлено!','success');
-  } else {
-    DB.comics.unshift({id:DB.nextId++,name,genre:document.getElementById('comic-genre').value.trim(),desc:document.getElementById('comic-desc').value.trim(),status:document.getElementById('comic-status').value,emoji:document.getElementById('comic-emoji').value||'📖',color:document.getElementById('comic-color').value,cover:window._coverData||null,chapters:[],createdAt:Date.now()});
-    showToast('Комикс создан!','success');
-  }
-  save();closeModal('modal-comic');
-  if(currentPage==='catalog')renderCatalog();
-  if(currentPage==='drafts')renderDrafts();
-  if(currentPage==='detail'&&currentComicId){openComicDetail(currentComicId);showPage('detail')}
-  updateStats();
-}
-
-function openAddChapterModal(){
-  editingChapterId=null;pendingChapterPages=[];
-  const comic=DB.comics.find(c=>c.id===currentComicId);
-  document.getElementById('modal-chapter-title').textContent='Новая глава';
-  document.getElementById('chapter-name').value='';
-  document.getElementById('chapter-num').value=(comic.chapters||[]).length+1;
-  renderPagesGrid([]);openModal('modal-chapter');
-}
-function openEditChapterModal(chapterId){
-  const comic=DB.comics.find(c=>c.id===currentComicId);
-  const ch=(comic.chapters||[]).find(c=>c.id===chapterId);if(!ch)return;
-  editingChapterId=chapterId;pendingChapterPages=[...(ch.pages||[])];
-  document.getElementById('modal-chapter-title').textContent='Редактировать главу';
-  document.getElementById('chapter-name').value=ch.name||'';
-  document.getElementById('chapter-num').value=ch.num;
-  renderPagesGrid(pendingChapterPages);openModal('modal-chapter');
-}
-function renderPagesGrid(pages){
-  const grid=document.getElementById('chapter-pages-grid');grid.innerHTML='';
-  pages.forEach((p,i)=>{const thumb=document.createElement('div');thumb.className='page-thumb';thumb.innerHTML=`<img src="${p}"/><div class="page-num">${i+1}</div><div class="page-del" onclick="removePage(${i})">✕</div>`;grid.appendChild(thumb)});
-  const addBtn=document.createElement('div');addBtn.className='add-page-btn';addBtn.innerHTML=`<input type="file" accept="image/*" multiple onchange="addPages(event)"/><div class="add-page-plus">+</div><div>Добавить</div>`;grid.appendChild(addBtn);
-}
-function removePage(idx){pendingChapterPages.splice(idx,1);renderPagesGrid(pendingChapterPages)}
-function addPages(event){
-  const files=Array.from(event.target.files);let loaded=0;
-  files.forEach(file=>{const reader=new FileReader();reader.onload=e=>{pendingChapterPages.push(e.target.result);loaded++;if(loaded===files.length)renderPagesGrid(pendingChapterPages)};reader.readAsDataURL(file)});
-}
-function saveChapter(){
-  const comic=DB.comics.find(c=>c.id===currentComicId);if(!comic)return;
-  const name=document.getElementById('chapter-name').value.trim();
-  const num=parseInt(document.getElementById('chapter-num').value)||1;
-  if(editingChapterId){
-    const ch=comic.chapters.find(c=>c.id===editingChapterId);Object.assign(ch,{name,num,pages:[...pendingChapterPages]});showToast('Глава обновлена!','success');
-  } else {
-    comic.chapters=comic.chapters||[];comic.chapters.push({id:DB.nextId++,name,num,pages:[...pendingChapterPages],createdAt:Date.now()});showToast('Глава добавлена!','success');
-  }
-  save();closeModal('modal-chapter');renderChapters(currentComicId);
-  if(currentPage==='detail')openComicDetail(currentComicId);
-  updateStats();
-}
-function confirmDeleteComic(id){
-  const comic=DB.comics.find(c=>c.id===id);
-  document.getElementById('confirm-title').textContent='Удалить комикс?';
-  document.getElementById('confirm-text').textContent=`Удалить "${comic.name}"? Всё будет удалено.`;
-  document.getElementById('confirm-ok-btn').onclick=async()=>{await deleteComicFromDB(id);closeModal('modal-confirm');if(currentPage==='detail')showPage('catalog');renderCatalog();renderDrafts();updateStats();showToast('Удалено','success')};
-  openModal('modal-confirm');
-}
-function confirmDeleteChapter(chapterId){
-  const comic=DB.comics.find(c=>c.id===currentComicId);const ch=comic.chapters.find(c=>c.id===chapterId);
-  document.getElementById('confirm-title').textContent='Удалить главу?';
-  document.getElementById('confirm-text').textContent=`Удалить "${ch.name||'Глава '+ch.num}"?`;
-  document.getElementById('confirm-ok-btn').onclick=()=>{comic.chapters=comic.chapters.filter(c=>c.id!==chapterId);save();closeModal('modal-confirm');renderChapters(currentComicId);updateStats();showToast('Глава удалена','success')};
-  openModal('modal-confirm');
-}
-
-// ===== AI GENERATOR =====
-let aiStyle='comic book art, cel shading, bold outlines, dynamic';
-let aiW=768,aiH=1024,genCount=1,isGenerating=false;
-document.querySelectorAll('#style-chips .style-chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#style-chips .style-chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');aiStyle=c.dataset.val}});
-document.querySelectorAll('#ratio-chips .style-chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#ratio-chips .style-chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');aiW=parseInt(c.dataset.w);aiH=parseInt(c.dataset.h)}});
-function changeCount(d){genCount=Math.max(1,Math.min(4,genCount+d));document.getElementById('gen-count-val').textContent=genCount}
-function qp(el){document.getElementById('ai-prompt').value=el.textContent.trim()}
-
-function generateImages(){
-  if(isGenerating)return;
-  const promptRaw=document.getElementById('ai-prompt').value.trim();
-  if(!promptRaw){showToast('Напиши промпт!','error');return}
-  const full=encodeURIComponent(`${promptRaw}, ${aiStyle}, high quality, detailed artwork`);
-  isGenerating=true;
-  const btn=document.getElementById('gen-btn');btn.disabled=true;
-  document.getElementById('gen-btn-text').textContent='⏳ Генерирую...';
-  document.getElementById('ai-empty').style.display='none';
-  document.getElementById('results-grid').style.display='grid';
-
-  for(let i=0;i<genCount;i++){
-    const seed=Math.floor(Math.random()*999999);
-    const url=`https://image.pollinations.ai/prompt/${full}?width=${aiW}&height=${aiH}&seed=${seed}&nologo=true&enhance=true&model=flux`;
-    const card=document.createElement('div');card.className='result-card';
-    card.innerHTML=`<div class="gen-placeholder"><div class="spinner"></div><div>Рисую... (~15 сек)</div></div>`;
-    document.getElementById('results-grid').prepend(card);
-
-    (function(card,imgUrl){
-      const img=new Image();
-      img.crossOrigin='anonymous';
-      img.onload=function(){
-        // сохраняем как base64 чтобы потом можно было работать
-        const canvas=document.createElement('canvas');
-        canvas.width=img.naturalWidth||aiW;canvas.height=img.naturalHeight||aiH;
-        const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
-        let b64;
-        try{b64=canvas.toDataURL('image/jpeg',0.92)}catch(e){b64=imgUrl}
-        card.innerHTML=`<img class="result-img" src="${b64}" onclick="openEditorWithImage('${b64}')"/>
-          <div class="result-actions">
-            <button class="btn btn-accent btn-sm" onclick="openEditorWithImage('${b64}')">✏️ Обводить</button>
-            <button class="btn btn-ghost btn-sm" onclick="dlImg('${b64}')">⬇️ Скачать</button>
-            <button class="btn btn-ghost btn-sm" onclick="addImgToChap('${b64}')">➕ В главу</button>
-          </div>`;
-        checkDone();
-      };
-      img.onerror=function(){
-        // fallback — показываем img напрямую без canvas
-        card.innerHTML=`<img class="result-img" src="${imgUrl}" crossorigin="anonymous"
-          onload="imgDirectLoaded(this,'${imgUrl}')"
-          onerror="imgFailed(this)"/>
-          <div class="result-actions" id="actions-fallback" style="display:none">
-            <button class="btn btn-accent btn-sm" onclick="openEditorWithImage('${imgUrl}')">✏️ Обводить</button>
-            <button class="btn btn-ghost btn-sm" onclick="dlImg('${imgUrl}')">⬇️ Скачать</button>
-            <button class="btn btn-ghost btn-sm" onclick="addImgToChap('${imgUrl}')">➕ В главу</button>
-          </div>`;
-        checkDone();
-      };
-      img.src=imgUrl;
-    })(card, url);
-  }
-
-  let doneCount=0;
-  function checkDone(){
-    doneCount++;
-    if(doneCount>=genCount){
-      isGenerating=false;btn.disabled=false;
-      document.getElementById('gen-btn-text').textContent='🎨 Генерировать';
-      showToast('Готово! 🎨','success');
+function fbDoc(col,id){
+  if(db){return db.collection(col).doc(id)}
+  return{
+    set:function(data,opts){
+      var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');
+      if(opts&&opts.merge){all[id]=Object.assign(all[id]||{},data)}else{all[id]=data}
+      localStorage.setItem('ch_'+col,JSON.stringify(all));return Promise.resolve()
+    },
+    get:function(){
+      var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');var d=all[id];
+      return Promise.resolve({exists:!!d,data:function(){return d},id:id})
+    },
+    update:function(data){
+      var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');all[id]=Object.assign(all[id]||{},data);
+      localStorage.setItem('ch_'+col,JSON.stringify(all));return Promise.resolve()
+    },
+    delete:function(){return fbDel(col,id)},
+    onSnapshot:function(cb){
+      function poll(){var all=JSON.parse(localStorage.getItem('ch_'+col)||'{}');var d=all[id];cb({exists:!!d,data:function(){return d||{}}})}
+      poll();setInterval(poll,2000);
     }
   }
 }
-
-function imgDirectLoaded(imgEl, url){
-  // показываем кнопки под картинкой
-  const actions=imgEl.parentElement.querySelector('#actions-fallback');
-  if(actions)actions.style.display='flex';
-}
-function imgFailed(imgEl){
-  imgEl.parentElement.innerHTML=`<div class="gen-placeholder" style="color:var(--red)">
-    <div style="font-size:28px">❌</div>
-    <div style="text-align:center;padding:0 10px">Не удалось загрузить.<br>Попробуй ещё раз или смени промпт.</div>
-  </div>`;
-}
-
-function dlImg(url){
-  const a=document.createElement('a');a.href=url;a.download='comic_'+Date.now()+'.jpg';a.click();
-}
-function addImgToChap(url){
-  if(!currentComicId){showToast('Сначала открой комикс','error');return}
-  const comic=DB.comics.find(c=>c.id===currentComicId);
-  if(!comic||!(comic.chapters||[]).length){showToast('В комиксе нет глав','error');return}
-  const ch=comic.chapters[comic.chapters.length-1];
-  ch.pages=ch.pages||[];ch.pages.push(url);
-  save();updateStats();showToast('Добавлено в последнюю главу!','success');
-}
-function openEditorWithImage(url){
-  window._pendingRefUrl=url;showPage('editor');
-}
-
-// ===== EDITOR =====
-let drawCtx,refCtx,editorW=0,editorH=0;
-let currentTool='pen',isDrawing=false,lastX=0,lastY=0;
-let undoStack=[],redoStack=[],lineSnap=null,lineX=0,lineY=0,refVisible=true;
-let editorInited=false;
-
-function initEditorPage(){
-  const wrap=document.getElementById('editor-wrap');
-  const W=wrap.clientWidth||800, H=wrap.clientHeight||600;
-  editorW=W;editorH=H;
-  const refC=document.getElementById('refCanvas');
-  const drawC=document.getElementById('drawCanvas');
-  refC.width=W;refC.height=H;refC.style.width=W+'px';refC.style.height=H+'px';
-  drawC.width=W;drawC.height=H;drawC.style.width=W+'px';drawC.style.height=H+'px';
-  refCtx=refC.getContext('2d');
-  drawCtx=drawC.getContext('2d');
-  if(!editorInited){
-    drawCtx.fillStyle='#ffffff';drawCtx.fillRect(0,0,W,H);
-    undoStack=[drawCtx.getImageData(0,0,W,H)];
-    redoStack=[];
-    setupDrawEvents(drawC);
-    editorInited=true;
-  }
-  if(window._pendingRefUrl){
-    loadRefFromUrl(window._pendingRefUrl);
-    window._pendingRefUrl=null;
-  }
-  updateBrush();
-}
-
-function loadRefFromUrl(url){
-  const img=new Image();img.crossOrigin='anonymous';
-  img.onload=()=>{
-    refCtx.clearRect(0,0,editorW,editorH);
-    const scale=Math.min(editorW/img.width,editorH/img.height)*0.95;
-    const dw=img.width*scale,dh=img.height*scale;
-    const dx=(editorW-dw)/2,dy=(editorH-dh)/2;
-    const op=parseInt(document.getElementById('ref-opacity').value)/100;
-    refCtx.globalAlpha=op;refCtx.drawImage(img,dx,dy,dw,dh);refCtx.globalAlpha=1;
-    window._currentRefImg=img;
-    document.getElementById('ed-status').textContent='Подложка загружена! Обводи сверху.';
-  };
-  img.onerror=()=>showToast('Не удалось загрузить подложку','error');
-  img.src=url;
-}
-
-function loadRefImage(){document.getElementById('ref-file-input').click()}
-function onRefFileLoad(event){
-  const file=event.target.files[0];if(!file)return;
-  const reader=new FileReader();reader.onload=e=>loadRefFromUrl(e.target.result);reader.readAsDataURL(file);
-}
-
-function setupDrawEvents(canvas){
-  function getPos(e){const r=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return[src.clientX-r.left,src.clientY-r.top]}
-  canvas.addEventListener('mousedown',e=>{start(...getPos(e))});
-  canvas.addEventListener('mousemove',e=>{if(isDrawing)move(...getPos(e))});
-  canvas.addEventListener('mouseup',e=>{end(...getPos(e))});
-  canvas.addEventListener('mouseleave',()=>{if(isDrawing)isDrawing=false});
-  canvas.addEventListener('touchstart',e=>{e.preventDefault();start(...getPos(e))},{passive:false});
-  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(isDrawing)move(...getPos(e))},{passive:false});
-  canvas.addEventListener('touchend',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();const t=e.changedTouches[0];end(t.clientX-r.left,t.clientY-r.top)},{passive:false});
-}
-function start(x,y){
-  isDrawing=true;lastX=x;lastY=y;
-  if(currentTool==='fill'){floodFill(Math.round(x),Math.round(y));isDrawing=false;return}
-  if(currentTool==='line'){lineX=x;lineY=y;lineSnap=drawCtx.getImageData(0,0,editorW,editorH);return}
-  saveUndo();drawCtx.beginPath();drawCtx.moveTo(x,y);
-}
-function move(x,y){
-  if(currentTool==='pen'||currentTool==='eraser'){drawCtx.lineTo(x,y);drawCtx.stroke()}
-  else if(currentTool==='line'){drawCtx.putImageData(lineSnap,0,0);drawCtx.beginPath();drawCtx.moveTo(lineX,lineY);drawCtx.lineTo(x,y);drawCtx.stroke()}
-  lastX=x;lastY=y;
-}
-function end(x,y){if(currentTool==='line'&&isDrawing)saveUndo();isDrawing=false}
-
-function updateBrush(){
-  if(!drawCtx)return;
-  const size=parseInt(document.getElementById('brush-size').value);
-  const color=document.getElementById('brush-color').value;
-  document.getElementById('brush-size-val').textContent=size+'px';
-  drawCtx.lineWidth=size;drawCtx.lineCap='round';drawCtx.lineJoin='round';
-  if(currentTool==='eraser'){drawCtx.globalCompositeOperation='destination-out';drawCtx.strokeStyle='rgba(0,0,0,1)'}
-  else{drawCtx.globalCompositeOperation='source-over';drawCtx.strokeStyle=color}
-}
-function setTool(t){
-  currentTool=t;
-  document.querySelectorAll('.tool-btn[id^="tool-"]').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById('tool-'+t);if(el)el.classList.add('active');
-  updateBrush();
-  const cursors={pen:'crosshair',eraser:'cell',line:'crosshair',fill:'default'};
-  document.getElementById('drawCanvas').style.cursor=cursors[t]||'crosshair';
-}
-function setColor(c){document.getElementById('brush-color').value=c;if(currentTool==='eraser')setTool('pen');updateBrush()}
-
-function updateRefOpacity(){
-  const val=parseInt(document.getElementById('ref-opacity').value);
-  document.getElementById('ref-opacity-val').textContent=val+'%';
-  if(!refCtx||!window._currentRefImg)return;
-  refCtx.clearRect(0,0,editorW,editorH);
-  const img=window._currentRefImg;
-  const scale=Math.min(editorW/img.width,editorH/img.height)*0.95;
-  const dw=img.width*scale,dh=img.height*scale,dx=(editorW-dw)/2,dy=(editorH-dh)/2;
-  refCtx.globalAlpha=val/100;refCtx.drawImage(img,dx,dy,dw,dh);refCtx.globalAlpha=1;
-}
-function toggleRef(){
-  refVisible=!refVisible;
-  document.getElementById('refCanvas').style.opacity=refVisible?'1':'0';
-  document.getElementById('toggle-ref-btn').style.opacity=refVisible?'1':'0.4';
-}
-
-function floodFill(startX,startY){
-  const imgData=drawCtx.getImageData(0,0,editorW,editorH);
-  const data=imgData.data;
-  const color=hexToRgba(document.getElementById('brush-color').value);
-  const idx=(y,x)=>(y*editorW+x)*4;
-  const si=idx(startY,startX);
-  const tr=[data[si],data[si+1],data[si+2],data[si+3]];
-  if(tr[0]===color[0]&&tr[1]===color[1]&&tr[2]===color[2]&&tr[3]===color[3])return;
-  const stack=[[startX,startY]];
-  function match(i){return data[i]===tr[0]&&data[i+1]===tr[1]&&data[i+2]===tr[2]&&data[i+3]===tr[3]}
-  function paint(i){data[i]=color[0];data[i+1]=color[1];data[i+2]=color[2];data[i+3]=255}
-  saveUndo();
-  while(stack.length){
-    const[x,y]=stack.pop();
-    if(x<0||x>=editorW||y<0||y>=editorH)continue;
-    const i=idx(y,x);if(!match(i))continue;
-    paint(i);
-    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
-  }
-  drawCtx.putImageData(imgData,0,0);
-}
-function hexToRgba(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return[r,g,b,255]}
-
-function saveUndo(){
-  undoStack.push(drawCtx.getImageData(0,0,editorW,editorH));
-  if(undoStack.length>40)undoStack.shift();
-  redoStack=[];
-}
-function undoDraw(){if(undoStack.length<=1)return;redoStack.push(undoStack.pop());drawCtx.putImageData(undoStack[undoStack.length-1],0,0)}
-function redoDraw(){if(!redoStack.length)return;const s=redoStack.pop();undoStack.push(s);drawCtx.putImageData(s,0,0)}
-function clearDraw(){saveUndo();drawCtx.fillStyle='#ffffff';drawCtx.fillRect(0,0,editorW,editorH)}
-
-function saveDrawing(){
-  const canvas=document.getElementById('drawCanvas');
-  const url=canvas.toDataURL('image/png');
-  const a=document.createElement('a');a.href=url;a.download='drawing_'+Date.now()+'.png';a.click();
-  showToast('Сохранено!','success');
-}
-function addDrawingToChapter(){
-  const canvas=document.getElementById('drawCanvas');
-  const url=canvas.toDataURL('image/png');
-  if(!currentComicId){showToast('Сначала открой комикс','error');return}
-  const comic=DB.comics.find(c=>c.id===currentComicId);
-  if(!comic||!(comic.chapters||[]).length){showToast('В комиксе нет глав','error');return}
-  const ch=comic.chapters[comic.chapters.length-1];ch.pages=ch.pages||[];ch.pages.push(url);
-  save();updateStats();showToast('Обводка добавлена в последнюю главу!','success');
-}
-
-document.addEventListener('keydown',e=>{
-  if(currentPage!=='editor')return;
-  if(e.ctrlKey&&e.key==='z')undoDraw();
-  if(e.ctrlKey&&e.key==='y')redoDraw();
-  if(!e.ctrlKey){if(e.key==='b')setTool('pen');if(e.key==='e')setTool('eraser');if(e.key==='l')setTool('line');if(e.key==='f')setTool('fill')}
-});
-
-// ===== FIREBASE =====
-const firebaseConfig = {
-  apiKey: "AIzaSyBDEjPPTEAxSggropnQLE8xOEs1ciZ9x8M",
-  authDomain: "comicshubserver-fd0ba.firebaseapp.com",
-  projectId: "comicshubserver-fd0ba",
-  storageBucket: "comicshubserver-fd0ba.firebasestorage.app",
-  messagingSenderId: "57190112016",
-  appId: "1:57190112016:web:06ee2e98256d04464ae395"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db_fire = firebase.firestore();
-
-// Слушаем изменения в реальном времени
-db_fire.collection('comics').onSnapshot((snapshot) => {
-  DB.comics = [];
-  snapshot.forEach(d => DB.comics.push(d.data()));
-  DB.comics.sort((a,b) => b.createdAt - a.createdAt);
-  if(currentPage==='catalog') renderCatalog();
-  if(currentPage==='drafts') renderDrafts();
-  if(currentPage==='detail' && currentComicId) {
-    const comic = DB.comics.find(c=>c.id===currentComicId);
-    if(comic) renderChapters(currentComicId);
-  }
-  updateStats();
-});
-
-async function save(){
-  for(const comic of DB.comics){
-    await db_fire.collection('comics').doc(String(comic.id)).set(comic);
-  }
-  localStorage.setItem('comicshub_db', JSON.stringify(DB));
-}
-
-async function deleteComicFromDB(id){
-  await db_fire.collection('comics').doc(String(id)).delete();
-  DB.comics = DB.comics.filter(c=>c.id!==id);
-  localStorage.setItem('comicshub_db', JSON.stringify(DB));
-}
-
-// UTILS
-function openModal(id){document.getElementById(id).classList.remove('hidden')}
-function closeModal(id){document.getElementById(id).classList.add('hidden')}
-document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden')})});
-function filterComics(){searchQuery=document.getElementById('search-input').value;if(currentPage==='catalog')renderCatalog();if(currentPage==='drafts')renderDrafts()}
-function updateStats(){
-  document.getElementById('stat-comics').textContent=DB.comics.length;
-  document.getElementById('stat-chapters').textContent=DB.comics.reduce((a,c)=>a+(c.chapters||[]).length,0);
-  document.getElementById('stat-pages').textContent=DB.comics.reduce((a,c)=>a+(c.chapters||[]).reduce((b,ch)=>b+(ch.pages||[]).length,0),0);
-}
-let toastTimer;
-function showToast(msg,type='success'){
-  const t=document.getElementById('toast');t.textContent=(type==='success'?'✅ ':'❌ ')+msg;
-  t.className='toast toast-'+type+' show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-// ===== CHAPTER DRAW EDITOR =====
-let deCtx, deRefCtx, deW=0, deH=0;
-let deTool_='pen', deDrawing=false, deLastX=0, deLastY=0;
-let deUndoStack=[], deLineSnap=null, deLineX=0, deLineY=0, deRefImg=null, deRefVis=true;
-let deInited=false;
-
-function openChapterDrawEditor(mode){
-  const titles={blank:'✏️ Нарисовать страницу',upload:'📁 Загрузить и обвести',ai:'🤖 ИИ + обвести'};
-  document.getElementById('draw-editor-title').textContent=titles[mode]||'✏️ Редактор';
-  document.getElementById('draw-editor-ai-row').style.display=mode==='ai'?'flex':'none';
-  document.getElementById('de-load-ref-btn').style.display=mode==='upload'?'':'none';
-  openModal('modal-draw-editor');
-  setTimeout(()=>deInit(mode),100);
-  if(mode==='upload') document.getElementById('de-ref-file').click();
-}
-
-function deInit(mode){
-  const wrap=document.getElementById('de-wrap');
-  const W=wrap.clientWidth||900, H=wrap.clientHeight||600;
-  deW=W; deH=H;
-  const rc=document.getElementById('deRefCanvas');
-  const dc=document.getElementById('deDrawCanvas');
-  rc.width=W; rc.height=H; rc.style.width=W+'px'; rc.style.height=H+'px';
-  dc.width=W; dc.height=H; dc.style.width=W+'px'; dc.style.height=H+'px';
-  deRefCtx=rc.getContext('2d');
-  deCtx=dc.getContext('2d');
-  if(!deInited){
-    deCtx.fillStyle='#ffffff'; deCtx.fillRect(0,0,W,H);
-    deUndoStack=[deCtx.getImageData(0,0,W,H)];
-    deSetupEvents(dc);
-    deInited=true;
-  } else {
-    deCtx.fillStyle='#ffffff'; deCtx.fillRect(0,0,W,H);
-    deUndoStack=[deCtx.getImageData(0,0,W,H)];
-  }
-  deRefImg=null;
-  deRefCtx.clearRect(0,0,W,H);
-  deUpdateBrush();
-}
-
-function deSetupEvents(canvas){
-  function pos(e){const r=canvas.getBoundingClientRect();const s=e.touches?e.touches[0]:e;return[s.clientX-r.left,s.clientY-r.top]}
-  canvas.addEventListener('mousedown',e=>{deStart(...pos(e))});
-  canvas.addEventListener('mousemove',e=>{if(deDrawing)deMove(...pos(e))});
-  canvas.addEventListener('mouseup',e=>{deEnd()});
-  canvas.addEventListener('mouseleave',()=>{deDrawing=false});
-  canvas.addEventListener('touchstart',e=>{e.preventDefault();deStart(...pos(e))},{passive:false});
-  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(deDrawing)deMove(...pos(e))},{passive:false});
-  canvas.addEventListener('touchend',e=>{e.preventDefault();deEnd()},{passive:false});
-}
-function deStart(x,y){
-  deDrawing=true; deLastX=x; deLastY=y;
-  if(deTool_==='fill'){deFloodFill(Math.round(x),Math.round(y));deDrawing=false;return}
-  if(deTool_==='line'){deLineX=x;deLineY=y;deLineSnap=deCtx.getImageData(0,0,deW,deH);return}
-  deSaveUndo(); deCtx.beginPath(); deCtx.moveTo(x,y);
-}
-function deMove(x,y){
-  if(deTool_==='pen'||deTool_==='eraser'){deCtx.lineTo(x,y);deCtx.stroke()}
-  else if(deTool_==='line'){deCtx.putImageData(deLineSnap,0,0);deCtx.beginPath();deCtx.moveTo(deLineX,deLineY);deCtx.lineTo(x,y);deCtx.stroke()}
-  deLastX=x;deLastY=y;
-}
-function deEnd(){if(deTool_==='line'&&deDrawing)deSaveUndo();deDrawing=false}
-function deTool(t){
-  deTool_=t;
-  document.querySelectorAll('.tool-btn[id^="de-tool-"]').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById('de-tool-'+t);if(el)el.classList.add('active');
-  deUpdateBrush();
-  document.getElementById('deDrawCanvas').style.cursor=t==='fill'?'default':'crosshair';
-}
-function deUpdateBrush(){
-  if(!deCtx)return;
-  const size=parseInt(document.getElementById('de-brush-size').value);
-  const color=document.getElementById('de-brush-color').value;
-  document.getElementById('de-brush-size-val').textContent=size+'px';
-  deCtx.lineWidth=size; deCtx.lineCap='round'; deCtx.lineJoin='round';
-  if(deTool_==='eraser'){deCtx.globalCompositeOperation='destination-out';deCtx.strokeStyle='rgba(0,0,0,1)'}
-  else{deCtx.globalCompositeOperation='source-over';deCtx.strokeStyle=color}
-}
-function deSetColor(c){document.getElementById('de-brush-color').value=c;if(deTool_==='eraser')deTool('pen');deUpdateBrush()}
-function deUpdateRef(){
-  const val=parseInt(document.getElementById('de-ref-opacity').value);
-  document.getElementById('de-ref-opacity-val').textContent=val+'%';
-  if(!deRefCtx||!deRefImg)return;
-  deRefCtx.clearRect(0,0,deW,deH);
-  const scale=Math.min(deW/deRefImg.width,deH/deRefImg.height)*0.95;
-  const dw=deRefImg.width*scale,dh=deRefImg.height*scale,dx=(deW-dw)/2,dy=(deH-dh)/2;
-  deRefCtx.globalAlpha=val/100; deRefCtx.drawImage(deRefImg,dx,dy,dw,dh); deRefCtx.globalAlpha=1;
-}
-function deToggleRef(){
-  deRefVis=!deRefVis;
-  document.getElementById('deRefCanvas').style.opacity=deRefVis?'1':'0';
-  document.getElementById('de-toggle-ref').style.opacity=deRefVis?'1':'0.4';
-}
-function deLoadRef(){document.getElementById('de-ref-file').click()}
-function deOnRefFile(event){
-  const file=event.target.files[0];if(!file)return;
-  const reader=new FileReader();reader.onload=e=>deLoadRefUrl(e.target.result);reader.readAsDataURL(file);
-}
-function deLoadRefUrl(url){
-  const img=new Image();img.onload=()=>{
-    deRefImg=img; deUpdateRef();
-    document.getElementById('de-status').textContent='Подложка загружена! Обводи.';
-  };img.src=url;
-}
-function deSaveUndo(){
-  deUndoStack.push(deCtx.getImageData(0,0,deW,deH));
-  if(deUndoStack.length>40)deUndoStack.shift();
-}
-function deUndo(){if(deUndoStack.length<=1)return;deUndoStack.pop();deCtx.putImageData(deUndoStack[deUndoStack.length-1],0,0)}
-function deClear(){deSaveUndo();deCtx.fillStyle='#ffffff';deCtx.fillRect(0,0,deW,deH)}
-function deFloodFill(sx,sy){
-  const imgData=deCtx.getImageData(0,0,deW,deH);const data=imgData.data;
-  const color=hexToRgba(document.getElementById('de-brush-color').value);
-  const idx=(y,x)=>(y*deW+x)*4;const si=idx(sy,sx);
-  const tr=[data[si],data[si+1],data[si+2],data[si+3]];
-  if(tr[0]===color[0]&&tr[1]===color[1]&&tr[2]===color[2])return;
-  const stack=[[sx,sy]];
-  function match(i){return data[i]===tr[0]&&data[i+1]===tr[1]&&data[i+2]===tr[2]&&data[i+3]===tr[3]}
-  function paint(i){data[i]=color[0];data[i+1]=color[1];data[i+2]=color[2];data[i+3]=255}
-  deSaveUndo();
-  while(stack.length){const[x,y]=stack.pop();if(x<0||x>=deW||y<0||y>=deH)continue;const i=idx(y,x);if(!match(i))continue;paint(i);stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}
-  deCtx.putImageData(imgData,0,0);
-}
-
-async function genAIForEditor(){
-  const prompt=document.getElementById('draw-editor-ai-prompt').value.trim();
-  if(!prompt){showToast('Напиши промпт!','error');return}
-  const status=document.getElementById('draw-editor-ai-status');
-  status.textContent='⏳ Генерирую...';
-  const full=encodeURIComponent(`${prompt}, ${aiStyle}, high quality, detailed artwork`);
-  const seed=Math.floor(Math.random()*999999);
-  const url=`https://image.pollinations.ai/prompt/${full}?width=${aiW}&height=${aiH}&seed=${seed}&nologo=true&enhance=true&model=flux`;
-  const img=new Image();img.crossOrigin='anonymous';
-  img.onload=()=>{deLoadRefUrl(url);status.textContent='✅ Готово! Обводи.'}
-  img.onerror=()=>{status.textContent='❌ Ошибка. Попробуй ещё раз.'}
-  img.src=url;
-}
-
-function savePageFromDrawEditor(){
-  const canvas=document.getElementById('deDrawCanvas');
-  const url=canvas.toDataURL('image/png');
-  pendingChapterPages.push(url);
-  renderPagesGrid(pendingChapterPages);
-  deInited=false;
-  closeModal('modal-draw-editor');
-  showToast('Страница добавлена!','success');
-}
-
-// ===== WELCOME SCREEN =====
-function checkRules(){
-  const checked=document.getElementById('rules-checkbox').checked;
-  document.getElementById('welcome-enter-btn').classList.toggle('ready',checked);
-}
-function enterSite(){
-  sessionStorage.setItem('ch_agreed','1');
-  document.getElementById('welcome-overlay').style.display='none';
-}
-if(sessionStorage.getItem('ch_agreed')==='1'){
-  document.getElementById('welcome-overlay').style.display='none';
-}
-
-// ===== COMMENTS & RATING =====
-let currentCommentStar=0;
-function setCommentStar(val){
-  currentCommentStar=val;
-  document.querySelectorAll('#new-comment-stars .star').forEach((s,i)=>s.classList.toggle('active',i<val));
-  document.getElementById('new-comment-star-val').textContent=val+'/5';
-}
-function submitComment(){
-  const author=document.getElementById('new-comment-author').value.trim()||'Аноним';
-  const text=document.getElementById('new-comment-text').value.trim();
-  if(!text){showToast('Напиши отзыв!','error');return}
-  if(!currentCommentStar){showToast('Поставь оценку!','error');return}
-  const comment={id:Date.now(),author,text,stars:currentCommentStar,date:new Date().toLocaleDateString('ru-RU'),comicId:currentComicId};
-  const key='comments_'+currentComicId;
-  const existing=JSON.parse(localStorage.getItem(key)||'[]');
-  existing.push(comment);
-  localStorage.setItem(key,JSON.stringify(existing));
-  if(typeof db_fire!=='undefined') db_fire.collection('comments').doc(String(comment.id)).set(comment).catch(()=>{});
-  document.getElementById('new-comment-text').value='';
-  document.getElementById('new-comment-author').value='';
-  currentCommentStar=0;
-  document.querySelectorAll('#new-comment-stars .star').forEach(s=>s.classList.remove('active'));
-  document.getElementById('new-comment-star-val').textContent='не выбрано';
-  renderComments(currentComicId);
-  showToast('Отзыв отправлен!','success');
-}
-function renderComments(comicId){
-  const key='comments_'+comicId;
-  const comments=JSON.parse(localStorage.getItem(key)||'[]');
-  const list=document.getElementById('comments-list');
-  const avgEl=document.getElementById('detail-avg-rating');
-  if(!list||!avgEl)return;
-  list.innerHTML='';
-  if(comments.length){
-    const avg=(comments.reduce((a,c)=>a+c.stars,0)/comments.length).toFixed(1);
-    avgEl.textContent='★ '+avg+' / 5  ('+comments.length+')';
-  } else {
-    avgEl.textContent='Нет оценок';
-  }
-  comments.slice().reverse().forEach(c=>{
-    const stars='⭐'.repeat(c.stars)+'☆'.repeat(5-c.stars);
-    const item=document.createElement('div');item.className='comment-item';
-    item.innerHTML=`<div class="comment-header">
-      <span class="comment-author">${c.author}</span>
-      <span class="comment-stars">${stars}</span>
-      <span class="comment-date">${c.date}</span>
-      ${isAdmin?`<button class="btn btn-danger btn-sm" style="margin-left:auto;padding:3px 8px" onclick="deleteComment(${c.id},'${comicId}')">🗑️</button>`:''}
-    </div><div class="comment-text">${c.text}</div>`;
-    list.appendChild(item);
-  });
-}
-function deleteComment(id,comicId){
-  const key='comments_'+comicId;
-  const comments=JSON.parse(localStorage.getItem(key)||'[]').filter(c=>c.id!==id);
-  localStorage.setItem(key,JSON.stringify(comments));
-  if(typeof db_fire!=='undefined') db_fire.collection('comments').doc(String(id)).delete().catch(()=>{});
-  renderComments(comicId);
-  showToast('Удалено','success');
-}
-
-const ADMIN_PASS = 'ComicsHubIlovebooks';
-let isAdmin = sessionStorage.getItem('ch_admin') === '1';
-
-function applyAdminState(){
-  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
-  document.getElementById('admin-btn-label').textContent=isAdmin?'Выйти из админа':'Права Администратора';
-  document.getElementById('admin-btn').style.background=isAdmin?'rgba(76,175,125,0.15)':'';
-  document.getElementById('admin-btn').style.color=isAdmin?'var(--green)':'';
-  document.getElementById('admin-btn').style.borderColor=isAdmin?'rgba(76,175,125,0.3)':'var(--border)';
-  if(currentPage==='catalog')renderCatalog();
-  if(currentPage==='drafts')renderDrafts();
-  if(currentPage==='detail'&&currentComicId)renderChapters(currentComicId);
-}
-
-function toggleAdmin(){
-  if(isAdmin){
-    isAdmin=false;
-    sessionStorage.removeItem('ch_admin');
-    applyAdminState();
-    showToast('Вышел из режима администратора','success');
-    if(currentPage==='ai')showPage('catalog');
-  } else {
-    openModal('modal-admin');
-    setTimeout(()=>document.getElementById('admin-pass-input').focus(),100);
-  }
-}
-
-function submitAdminPass(){
-  const val=document.getElementById('admin-pass-input').value;
-  if(val===ADMIN_PASS){
-    isAdmin=true;
-    sessionStorage.setItem('ch_admin','1');
-    closeModal('modal-admin');
-    document.getElementById('admin-pass-input').value='';
-    applyAdminState();
-    showToast('Добро пожаловать, Администратор! 👑','success');
-  } else {
-    document.getElementById('admin-pass-input').style.borderColor='var(--red)';
-    document.getElementById('admin-pass-input').value='';
-    showToast('Неверный пароль!','error');
-    setTimeout(()=>document.getElementById('admin-pass-input').style.borderColor='',800);
-  }
-}
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&document.getElementById('modal-admin')&&!document.getElementById('modal-admin').classList.contains('hidden')){
-    submitAdminPass();
-  }
-});
-
-// Патч makeComicCard — скрываем кнопки редактирования для не-админов
-const _origMakeComicCard = makeComicCard;
-// уже встроено через isAdmin проверку ниже
-
-if(!DB.comics.length){
-  DB.comics.push({id:DB.nextId++,name:'Пример комикса',genre:'Фэнтези',desc:'Удали или отредактируй.',status:'published',emoji:'⚔️',color:'#1a0a2e',cover:null,chapters:[{id:DB.nextId++,name:'Начало',num:1,pages:[],createdAt:Date.now()}],createdAt:Date.now()});
-  save();
-}
-applyAdminState();
-renderCatalog();updateStats();
-
-// expose globals
-window.checkRules = checkRules;
-window.enterSite = enterSite;
-window.setCommentStar = setCommentStar;
-window.submitComment = submitComment;
-window.deleteComment = deleteComment;
-window.toggleAdmin = toggleAdmin;
-window.submitAdminPass = submitAdminPass;
+var curPage='catalog',prevPg='catalog',curComic=null,editCid=null,editChId=null,rdComic=null,rdChIdx=0,pendPages=[],searchQ='',activeGenre='all';
+var curUser=null,isAdmin=false,isMod=false,selRole='admin',comics=[];
+var AH='c79847796b7eb348ec5ccdaef4f76e7020534bf181602ea26956813820c3e425',MH='c77a88a7bb608aaee60b5a3d8f343e533d176085918a0ec0cfe559572a2806f9';
+var CHANGELOG=[{ver:'2.0',date:'07.06.2026',items:['🏆 Топ комиксов','💬 Чат','🌙 Тема','📱 Мобильная версия','🏷️ Теги','📊 Профили авторов','🔔 Подписки','❤️ Лайки','🔍 Поиск по автору','📢 Объявления','📋 Обновления','👑 Админ/Модератор','⚙️ Админ-панель','🔌 Управление сервисом','🎨 Редактор','🤖 ИИ генератор']},{ver:'1.0',date:'07.06.2026',items:['📚 Каталог','✏️ Создание комиксов','📖 Читалка','⭐ Рейтинг','🔐 Аккаунты']}];
+function acceptRules(){sessionStorage.setItem('ch_ok','1');document.getElementById('wo').style.display='none';checkLogin()}
+if(sessionStorage.getItem('ch_ok')==='1')document.getElementById('wo').style.display='none';
+function checkLogin(){curUser=localStorage.getItem('ch_user');if(curUser){showApp();return}document.getElementById('login-mo').classList.remove('hidden')}
+function doLogin(){const n=document.getElementById('login-name').value.trim();if(!n||n.length<2){toast('Мин 2 символа!',1);return}localStorage.setItem('ch_user',n);curUser=n;document.getElementById('login-mo').classList.add('hidden');showApp()}
+function doLogout(){localStorage.removeItem('ch_user');location.reload()}
+function showApp(){document.getElementById('sidebar').style.display='';document.getElementById('main-content').style.display='';document.getElementById('user-display').textContent='👤 '+curUser;isAdmin=sessionStorage.getItem('ch_adm')==='1';isMod=sessionStorage.getItem('ch_mod')==='1';applyAdm();loadComics();checkSvc();checkAnn();showCL();checkUser();fbDoc('users',curUser).set({name:curUser,lastLogin:Date.now()},{merge:true})}
+if(sessionStorage.getItem('ch_ok')==='1')checkLogin();
+function showCL(){const seen=localStorage.getItem('ch_cl_seen');if(seen===CHANGELOG[0].ver)return;document.getElementById('cl-box').style.display='flex';const el=document.getElementById('cl-items');el.innerHTML='';CHANGELOG.forEach(v=>{el.innerHTML+='<div style="font-family:Bangers,cursive;font-size:18px;margin:12px 0 6px">v'+v.ver+' — '+v.date+'</div>';v.items.forEach(i=>{el.innerHTML+='<div style="padding:4px 0;font-size:14px;color:var(--t2)">'+i+'</div>'})})}
+function closeCL(){document.getElementById('cl-box').style.display='none';localStorage.setItem('ch_cl_seen',CHANGELOG[0].ver)}
+function renderCLPage(){const el=document.getElementById('changelog-full');if(!el)return;el.innerHTML='';CHANGELOG.forEach(v=>{el.innerHTML+='<div style="font-family:Bangers,cursive;font-size:22px;margin:16px 0 8px">v'+v.ver+'</div>';v.items.forEach(i=>{el.innerHTML+='<div style="padding:6px 0;font-size:14px;color:var(--t2);border-bottom:1px solid var(--bor)">'+i+'</div>'})})}
+function toggleTheme(){const d=document.documentElement;const l=d.getAttribute('data-theme')==='light';d.setAttribute('data-theme',l?'':'light');localStorage.setItem('ch_theme',l?'dark':'light');document.getElementById('theme-label').textContent=l?'Светлая тема':'Тёмная тема'}
+if(localStorage.getItem('ch_theme')==='light'){document.documentElement.setAttribute('data-theme','light')}
+function loadComics(){fbListen('comics',function(snap){comics=[];snap.forEach(d=>{const x=d.data();x._id=d.id;comics.push(x)});comics.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));if(curPage==='catalog')renderCat();if(curPage==='my')renderMy();if(curPage==='top')renderTop();if(curPage==='detail'&&curComic)renderDetail();updStats()})}
+function go(p){prevPg=curPage;curPage=p;document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const el=document.getElementById('p-'+p);if(el)el.classList.add('active');document.querySelectorAll('.ni[data-p]').forEach(n=>n.classList.toggle('active',n.dataset.p===p));const t={catalog:'Каталог',my:'Мои комиксы',detail:'Комикс',reader:'Читалка',ai:'🤖 ИИ',editor:'🎨 Редактор',panel:'⚙️ Админ',chat:'💬 Чат',top:'🏆 Топ',profile:'Профиль',changelog:'📋 Обновления'};document.getElementById('top-t').textContent=t[p]||'';if(p==='catalog')renderCat();if(p==='my')renderMy();if(p==='top')renderTop();if(p==='editor')initEditor();if(p==='panel'){loadPanelDB();loadPanelUsers()}if(p==='chat')loadChat();if(p==='changelog')renderCLPage();document.getElementById('sidebar').classList.remove('open')}
+function goBack(){go(prevPg==='detail'?'catalog':prevPg||'catalog')}
+function renderCat(){let list=(comics||[]).filter(c=>c.status!=='draft');if(searchQ)list=list.filter(c=>(c.name||'').toLowerCase().includes(searchQ)||(c.author||'').toLowerCase().includes(searchQ)||(c.tags||'').toLowerCase().includes(searchQ));if(activeGenre!=='all')list=list.filter(c=>c.genre&&c.genre.toLowerCase().includes(activeGenre.toLowerCase()));const g=document.getElementById('cat-grid'),e=document.getElementById('cat-emp');g.innerHTML='';if(!list.length){e.style.display='';g.style.display='none';return}e.style.display='none';g.style.display='';list.forEach(c=>g.appendChild(mkCard(c)));renderGF()}
+function renderMy(){let list=(comics||[]).filter(c=>c.author===curUser);const g=document.getElementById('my-grid'),e=document.getElementById('my-emp');g.innerHTML='';if(!list.length){e.style.display='';g.style.display='none';return}e.style.display='none';g.style.display='';list.forEach(c=>g.appendChild(mkCard(c,true)))}
+function renderTop(){const el=document.getElementById('top-grid');el.innerHTML='';const sorted=(comics||[]).filter(c=>c.status!=='draft').slice().sort((a,b)=>(b.avgRating||0)-(a.avgRating||0));sorted.forEach(c=>el.appendChild(mkCard(c)))}
+function renderGF(){const bar=document.getElementById('gf-bar');bar.innerHTML='';const genres=new Set();(comics||[]).filter(c=>c.status!=='draft').forEach(c=>{if(c.genre)c.genre.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>genres.add(x))});if(!genres.size)return;const a=document.createElement('button');a.className='btn bs '+(activeGenre==='all'?'ba':'bg');a.textContent='Все';a.onclick=()=>{activeGenre='all';renderCat()};bar.appendChild(a);genres.forEach(g=>{const b=document.createElement('button');b.className='btn bs '+(activeGenre===g?'ba':'bg');b.textContent=g;b.onclick=()=>{activeGenre=g;renderCat()};bar.appendChild(b)})}
+function mkCard(c,own){const card=document.createElement('div');card.className='cc';const chs=(c.chapters||[]).length,pgs=(c.chapters||[]).reduce((a,ch)=>a+(ch.pages||[]).length,0);const cov=c.cover?'<div style="position:relative;width:100%;aspect-ratio:2/3;overflow:hidden"><img src="'+c.cover+'" style="width:100%;height:100%;object-fit:cover"/></div>':'<div class="cc-cover" style="background:linear-gradient(135deg,'+(c.color||'#1a1a2e')+',#000)"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:52px">'+(c.emoji||'📖')+'</span>'+c.name+'</div>';const badge=c.status==='draft'?'<div class="draft-b">ЧЕРНОВИК</div>':'';const canE=own||isAdmin||isMod||c.author===curUser;const acts=canE?'<div class="cc-acts"><button class="cc-btn" onclick="event.stopPropagation();editComic(\''+c._id+'\')">✏️</button><button class="cc-btn" onclick="event.stopPropagation();delComic(\''+c._id+'\',\''+((c.name||'').replace(/'/g,"\\'"))+'\')">🗑️</button></div>':'';const rat=c.avgRating?' · ★'+c.avgRating.toFixed(1):'';card.innerHTML='<div style="position:relative">'+cov+badge+'</div>'+acts+'<div class="cc-info"><div class="cc-title">'+c.name+'</div><div class="cc-meta"><span>'+chs+' гл.</span><span>·</span><span>'+pgs+' стр.</span><span style="cursor:pointer;color:var(--blu)" onclick="event.stopPropagation();openProfile(\''+(c.author||'')+'\')">'+(c.author||'?')+'</span>'+rat+'</div></div>';card.onclick=()=>openDetail(c._id);return card}
+function openDetail(id){curComic=id;renderDetail();prevPg=curPage;go('detail')}
+function renderDetail(){const c=(comics||[]).find(x=>x._id===curComic);if(!c)return;const h=document.getElementById('det-h');const cov=c.cover?'<img src="'+c.cover+'" style="width:160px;min-width:160px;aspect-ratio:2/3;border-radius:var(--r2);object-fit:cover;border:1px solid var(--bor)"/>':'<div class="dc" style="background:linear-gradient(135deg,'+(c.color||'#1a1a2e')+',#000)">'+(c.emoji||'📖')+'</div>';const canE=isAdmin||isMod||c.author===curUser;h.innerHTML=cov+'<div class="di"><div class="dt">'+c.name+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><span class="tag" style="background:var(--bg3);color:var(--t3);cursor:pointer" onclick="openProfile(\''+(c.author||'')+'\')">by '+(c.author||'?')+'</span></div><div class="dd">'+(c.desc||'')+'</div><div class="da">'+(canE?'<button class="btn ba bs" onclick="openNewChapter()">+ Глава</button><button class="btn bg bs" onclick="editComic(\''+c._id+'\')">✏️</button>':'')+((c.chapters||[]).length?'<button class="btn bg bs" onclick="openReader(\''+c._id+'\',0)">📖 Читать</button>':'')+'<button class="btn bg bs" onclick="likeComic(\''+c._id+'\')">❤️ '+(c.likes||0)+'</button></div></div>';document.getElementById('add-ch-btn').style.display=canE?'':'none';renderChs(c);renderComments(c._id)}
+function renderChs(c){const list=document.getElementById('det-chs'),emp=document.getElementById('det-no-ch');list.innerHTML='';const chs=(c.chapters||[]).slice().sort((a,b)=>a.num-b.num);if(!chs.length){emp.style.display='';return}emp.style.display='none';const canE=isAdmin||isMod||c.author===curUser;chs.forEach((ch,i)=>{const item=document.createElement('div');item.className='ch-item';item.innerHTML='<div class="ch-num">'+ch.num+'</div><div style="flex:1"><div style="font-weight:500">'+((ch.name||'Глава '+ch.num))+'</div><div style="font-size:12px;color:var(--t3)">'+(ch.pages||[]).length+' стр.</div></div><div class="ch-acts"><button class="btn bg bs" onclick="openReader(\''+c._id+'\','+i+')">📖</button>'+(canE?'<button class="btn bg bs" onclick="editChapter(\''+c._id+'\','+ch.id+')">✏️</button><button class="btn bd bs" onclick="delChapter(\''+c._id+'\','+ch.id+')">🗑️</button>':'')+'</div>';list.appendChild(item)})}
+function likeComic(id){const c=(comics||[]).find(x=>x._id===id);if(c)fbDoc('comics',id).update({likes:(c.likes||0)+1});toast('❤️')}
+function openReader(id,idx){rdComic=id;rdChIdx=idx;renderReader();prevPg=curPage;go('reader')}
+function renderReader(){const c=(comics||[]).find(x=>x._id===rdComic);if(!c)return;const chs=(c.chapters||[]).slice().sort((a,b)=>a.num-b.num);const ch=chs[rdChIdx];document.getElementById('rd-title').textContent=c.name+(ch?' — '+(ch.name||'Гл.'+ch.num):'');const bar=document.getElementById('rd-chbar');bar.innerHTML='';chs.forEach((ch,i)=>{const b=document.createElement('button');b.className='chbtn'+(i===rdChIdx?' on':'');b.textContent='Гл.'+ch.num;b.onclick=()=>{rdChIdx=i;renderReader()};bar.appendChild(b)});const pg=document.getElementById('rd-pages');pg.innerHTML='';if(ch&&ch.pages&&ch.pages.length)ch.pages.forEach(p=>{const img=document.createElement('img');img.src=p;img.className='rd-img';pg.appendChild(img)});else pg.innerHTML='<div class="emp"><div class="emp-i">📄</div><div class="emp-t">Нет страниц</div></div>';document.getElementById('pch').disabled=rdChIdx===0;document.getElementById('nch').disabled=rdChIdx>=chs.length-1;document.getElementById('rd-label').textContent=(rdChIdx+1)+'/'+chs.length}
+function rdPrev(){if(rdChIdx>0){rdChIdx--;renderReader()}}
+function rdNext(){const c=(comics||[]).find(x=>x._id===rdComic);if(rdChIdx<(c.chapters||[]).length-1){rdChIdx++;renderReader()}}
+var _cov=null;
+function openNewComic(){editCid=null;_cov=null;document.getElementById('mc-t').textContent='Новый комикс';['c-name','c-genre','c-desc','c-tags'].forEach(id=>document.getElementById(id).value='');document.getElementById('c-status').value='draft';document.getElementById('c-emoji').value='📖';document.getElementById('c-color').value='#1a1a2e';document.getElementById('cov-prev').innerHTML='<div style="font-size:36px">🎨</div>';oModal('m-comic')}
+function editComic(id){const c=(comics||[]).find(x=>x._id===id);if(!c)return;editCid=id;_cov=c.cover||null;document.getElementById('mc-t').textContent='Редактировать';document.getElementById('c-name').value=c.name||'';document.getElementById('c-genre').value=c.genre||'';document.getElementById('c-desc').value=c.desc||'';document.getElementById('c-tags').value=c.tags||'';document.getElementById('c-status').value=c.status||'draft';document.getElementById('c-emoji').value=c.emoji||'📖';document.getElementById('c-color').value=c.color||'#1a1a2e';oModal('m-comic')}
+function prevCover(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{_cov=ev.target.result;document.getElementById('cov-prev').innerHTML='<img src="'+ev.target.result+'" style="width:90px;height:135px;object-fit:cover;border-radius:8px;margin:0 auto;display:block"/>'};r.readAsDataURL(f)}
+function saveComic(){const name=document.getElementById('c-name').value.trim();if(!name){toast('Название!',1);return}const data={name,genre:document.getElementById('c-genre').value.trim(),desc:document.getElementById('c-desc').value.trim(),tags:document.getElementById('c-tags').value.trim(),status:document.getElementById('c-status').value,emoji:document.getElementById('c-emoji').value||'📖',color:document.getElementById('c-color').value,cover:_cov,author:curUser,createdAt:Date.now()};if(editCid){const old=(comics||[]).find(c=>c._id===editCid);data.chapters=old?old.chapters||[]:[];data.createdAt=old?old.createdAt:Date.now();data.author=old?old.author:curUser;data.likes=old?old.likes||0:0;data.avgRating=old?old.avgRating||0:0;fbDoc('comics',editCid).set(data)}else{data.chapters=[];data.likes=0;fbAdd('comics',data)}cModal('m-comic');toast(editCid?'Обновлено!':'Создано!')}
+function delComic(id,name){document.getElementById('cf-t').textContent='Удалить?';document.getElementById('cf-txt').textContent='Удалить "'+name+'"?';document.getElementById('cf-ok').onclick=()=>{fbDoc('comics',id).delete();cModal('m-confirm');toast('Удалено!');if(curPage==='detail')go('catalog')};oModal('m-confirm')}
+function openNewChapter(){editChId=null;pendPages=[];const c=(comics||[]).find(x=>x._id===curComic);document.getElementById('mch-t').textContent='Новая глава';document.getElementById('ch-name').value='';document.getElementById('ch-num').value=(c&&c.chapters?c.chapters.length:0)+1;renderPgs([]);oModal('m-chap');applyAdm()}
+function editChapter(cid,chId){const c=(comics||[]).find(x=>x._id===cid);if(!c)return;const ch=(c.chapters||[]).find(x=>x.id===chId);if(!ch)return;editChId=chId;pendPages=[...(ch.pages||[])];document.getElementById('mch-t').textContent='Редактировать';document.getElementById('ch-name').value=ch.name||'';document.getElementById('ch-num').value=ch.num;renderPgs(pendPages);oModal('m-chap');applyAdm()}
+function renderPgs(pgs){const g=document.getElementById('ch-pgs');g.innerHTML='';pgs.forEach((p,i)=>{const t=document.createElement('div');t.className='pg-th';t.innerHTML='<img src="'+p+'"/><div style="position:absolute;bottom:4px;right:5px;font-size:10px;background:rgba(0,0,0,.8);padding:1px 5px;border-radius:4px;color:var(--t2)">'+(i+1)+'</div>';g.appendChild(t)});const a=document.createElement('div');a.className='add-pg';a.innerHTML='<input type="file" accept="image/*" multiple onchange="addPgs(event)"/><div style="font-size:28px">+</div>';g.appendChild(a)}
+function rmPg(i){pendPages.splice(i,1);renderPgs(pendPages)}
+function addPgs(e){const files=Array.from(e.target.files);let n=0;files.forEach(f=>{const r=new FileReader();r.onload=ev=>{pendPages.push(ev.target.result);n++;if(n===files.length)renderPgs(pendPages)};r.readAsDataURL(f)})}
+function saveChapter(){const c=(comics||[]).find(x=>x._id===curComic);if(!c)return;const name=document.getElementById('ch-name').value.trim(),num=parseInt(document.getElementById('ch-num').value)||1;const chs=c.chapters||[];if(editChId){const ch=chs.find(x=>x.id===editChId);if(ch){ch.name=name;ch.num=num;ch.pages=[...pendPages]}}else{chs.push({id:Date.now(),name,num,pages:[...pendPages],createdAt:Date.now()})}fbDoc('comics',curComic).update({chapters:chs});cModal('m-chap');toast('Сохранено!')}
+function delChapter(cid,chId){document.getElementById('cf-t').textContent='Удалить?';document.getElementById('cf-txt').textContent='Удалить главу?';document.getElementById('cf-ok').onclick=()=>{const c=(comics||[]).find(x=>x._id===cid);if(c){c.chapters=(c.chapters||[]).filter(x=>x.id!==chId);fbDoc('comics',cid).update({chapters:c.chapters})}cModal('m-confirm');toast('Удалено!')};oModal('m-confirm')}
+var cmStar=0;function renderStars(){const el=document.getElementById('new-stars');if(!el)return;el.innerHTML='';for(let i=1;i<=5;i++){const s=document.createElement('span');s.className='star'+(i<=cmStar?' on':'');s.textContent='⭐';s.onclick=()=>{cmStar=i;renderStars();document.getElementById('star-val').textContent=i+'/5'};el.appendChild(s)}}renderStars();
+function postComment(){const txt=document.getElementById('cm-text').value.trim();if(!txt){toast('Текст!',1);return}if(!cmStar){toast('Оценка!',1);return}fbQuery('comments','comicId','==',curComic).then(snap=>{var already=false;snap.forEach(function(d){if(d.data().author===curUser)already=true});if(already){toast('Уже оставлял!',1);return}fbAdd('comments',{comicId:curComic,author:curUser,text:txt,stars:cmStar,date:new Date().toLocaleDateString('ru-RU'),createdAt:Date.now()}).then(()=>{document.getElementById('cm-text').value='';cmStar=0;renderStars();document.getElementById('star-val').textContent='—';toast('Отправлено!');renderComments(curComic);fbQuery('comments','comicId','==',curComic).then(s=>{var sum=0,n=0;s.forEach(d=>{sum+=d.data().stars;n++});fbDoc('comics',curComic).update({avgRating:n?sum/n:0})})})})}
+function renderComments(cid){fbQuery('comments','comicId','==',cid).then(snap=>{const list=[];snap.forEach(d=>{const x=d.data();x._id=d.id;list.push(x)});list.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));const el=document.getElementById('cm-list'),avg=document.getElementById('avg-rat');if(!el)return;el.innerHTML='';if(list.length){avg.textContent='★ '+(list.reduce((s,c)=>s+c.stars,0)/list.length).toFixed(1)+'/5 ('+list.length+')'}else{avg.textContent='Нет оценок'}list.forEach(c=>{const item=document.createElement('div');item.className='cm-item';item.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="cm-au">'+c.author+'</span><span style="font-size:12px">'+'⭐'.repeat(c.stars)+'</span><span class="cm-dt">'+(c.date||'')+'</span>'+((isAdmin||isMod)?'<button class="btn bd bs" style="margin-left:auto;padding:2px 6px" onclick="fbDoc(\'comments\',\''+c._id+'\').delete().then(()=>{toast(\'Удалено!\');renderComments(\''+cid+'\')})">🗑️</button>':'')+'</div><div class="cm-txt">'+c.text+'</div>';el.appendChild(item)})})}
+function openProfile(a){if(!a)return;go('profile');document.getElementById('prof-name').textContent=a;const ac=(comics||[]).filter(c=>c.author===a&&c.status!=='draft');document.getElementById('prof-stats').textContent=ac.length+' комиксов';const g=document.getElementById('prof-grid');g.innerHTML='';ac.forEach(c=>g.appendChild(mkCard(c)));const subs=JSON.parse(localStorage.getItem('ch_subs')||'[]');document.getElementById('prof-sub-btn').textContent=subs.includes(a)?'🔕 Отписаться':'🔔 Подписаться';window._profA=a}
+function toggleSub(){const subs=JSON.parse(localStorage.getItem('ch_subs')||'[]');const a=window._profA;if(subs.includes(a))subs.splice(subs.indexOf(a),1);else subs.push(a);localStorage.setItem('ch_subs',JSON.stringify(subs));document.getElementById('prof-sub-btn').textContent=subs.includes(a)?'🔕 Отписаться':'🔔 Подписаться';toast(subs.includes(a)?'Подписался!':'Отписался')}
+function loadChat(){fbListen('chat',function(snap){const msgs=[];snap.forEach(d=>msgs.push(d.data()));msgs.reverse();const el=document.getElementById('chat-msgs');el.innerHTML='';msgs.forEach(m=>{const div=document.createElement('div');div.className='chat-msg'+(m.author===curUser?' mine':'');div.innerHTML='<div style="font-size:12px;color:var(--acc);font-weight:600">'+m.author+'</div><div style="font-size:14px;color:var(--t2)">'+m.text+'</div>';el.appendChild(div)});el.scrollTop=el.scrollHeight})}
+function sendChat(){const inp=document.getElementById('chat-inp');const txt=inp.value.trim();if(!txt)return;fbAdd('chat',{author:curUser,text:txt,ts:Date.now()});inp.value=''}
+var aiStyle='comic book art, bold outlines',aiW=768,aiH=1024;
+document.querySelectorAll('#ai-styles .chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#ai-styles .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');aiStyle=c.dataset.v}});
+document.querySelectorAll('#ai-ratios .chip').forEach(c=>{c.onclick=()=>{document.querySelectorAll('#ai-ratios .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');aiW=+c.dataset.w;aiH=+c.dataset.h}});
+function aiGen(){const pr=document.getElementById('ai-prompt').value.trim();if(!pr){toast('Промпт!',1);return}const btn=document.getElementById('ai-btn');btn.disabled=true;btn.textContent='⏳...';document.getElementById('ai-emp').style.display='none';const grid=document.getElementById('ai-grid');grid.style.display='grid';const seed=Math.floor(Math.random()*999999);const url='https://image.pollinations.ai/prompt/'+encodeURIComponent(pr+', '+aiStyle)+'?width='+aiW+'&height='+aiH+'&seed='+seed+'&nologo=true&model=flux';const card=document.createElement('div');card.style='background:var(--bg2);border:1px solid var(--bor);border-radius:var(--r2);overflow:hidden';card.innerHTML='<div style="min-height:200px;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div>';grid.prepend(card);const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{card.innerHTML='<img src="'+url+'" style="width:100%;display:block"/><div style="padding:8px 10px"><button class="btn ba bs" onclick="window.open(\''+url+'\')">⬇️</button></div>';btn.disabled=false;btn.textContent='🎨 Генерировать';toast('Готово!')};img.onerror=()=>{card.innerHTML='<div style="padding:20px;text-align:center;color:var(--red)">❌</div>';btn.disabled=false;btn.textContent='🎨 Генерировать'};img.src=url}
+var dCtx,dRCtx,dW=0,dH=0,dTl='pen',dDr=false,dLX=0,dLY=0,dUnS=[],dLnS=null,dLnX=0,dLnY=0,dRI=null,dRV=true;
+function openDraw(mode){document.getElementById('drw-t').textContent={blank:'✏️',upload:'📁',ai:'🤖'}[mode]||'✏️';document.getElementById('drw-ai').style.display=mode==='ai'?'flex':'none';oModal('m-draw');setTimeout(()=>{const w=document.getElementById('d-wrap');dW=w.clientWidth||900;dH=w.clientHeight||600;const rc=document.getElementById('dRC'),dc=document.getElementById('dDC');rc.width=dW;rc.height=dH;rc.style.width=dW+'px';rc.style.height=dH+'px';dc.width=dW;dc.height=dH;dc.style.width=dW+'px';dc.style.height=dH+'px';dRCtx=rc.getContext('2d');dCtx=dc.getContext('2d');dCtx.fillStyle='#fff';dCtx.fillRect(0,0,dW,dH);dUnS=[dCtx.getImageData(0,0,dW,dH)];dRI=null;dRCtx.clearRect(0,0,dW,dH);setupDC(dc);dBrush()},100);if(mode==='upload')setTimeout(()=>document.getElementById('d-fi').click(),200)}
+function setupDC(c){function pos(e){const r=c.getBoundingClientRect();const s=e.touches?e.touches[0]:e;return[s.clientX-r.left,s.clientY-r.top]}c.onmousedown=e=>dSt(...pos(e));c.onmousemove=e=>{if(dDr)dMv(...pos(e))};c.onmouseup=()=>dEn();c.onmouseleave=()=>{dDr=false};c.ontouchstart=e=>{e.preventDefault();dSt(...pos(e))};c.ontouchmove=e=>{e.preventDefault();if(dDr)dMv(...pos(e))};c.ontouchend=e=>{e.preventDefault();dEn()}}
+function dSt(x,y){dDr=true;dLX=x;dLY=y;if(dTl==='fill'){dFF(Math.round(x),Math.round(y));dDr=false;return}if(dTl==='line'){dLnX=x;dLnY=y;dLnS=dCtx.getImageData(0,0,dW,dH);return}dSU();dCtx.beginPath();dCtx.moveTo(x,y)}
+function dMv(x,y){if(dTl==='pen'||dTl==='eraser'){dCtx.lineTo(x,y);dCtx.stroke()}else if(dTl==='line'){dCtx.putImageData(dLnS,0,0);dCtx.beginPath();dCtx.moveTo(dLnX,dLnY);dCtx.lineTo(x,y);dCtx.stroke()}dLX=x;dLY=y}
+function dEn(){if(dTl==='line'&&dDr)dSU();dDr=false}
+function dTool(t){dTl=t;['d-pen','d-eraser','d-line','d-fill'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',id==='d-'+t)});dBrush();document.getElementById('dDC').style.cursor=t==='fill'?'default':'crosshair'}
+function dBrush(){if(!dCtx)return;const s=+document.getElementById('d-size').value;const c=document.getElementById('d-color').value;document.getElementById('d-sv').textContent=s;dCtx.lineWidth=s;dCtx.lineCap='round';dCtx.lineJoin='round';if(dTl==='eraser'){dCtx.globalCompositeOperation='destination-out';dCtx.strokeStyle='rgba(0,0,0,1)'}else{dCtx.globalCompositeOperation='source-over';dCtx.strokeStyle=c}}
+function dRefOpa(){const v=+document.getElementById('d-opa').value;document.getElementById('d-ov').textContent=v+'%';if(!dRCtx||!dRI)return;dRCtx.clearRect(0,0,dW,dH);const sc=Math.min(dW/dRI.width,dH/dRI.height)*.95;const dw=dRI.width*sc,dh=dRI.height*sc,dx=(dW-dw)/2,dy=(dH-dh)/2;dRCtx.globalAlpha=v/100;dRCtx.drawImage(dRI,dx,dy,dw,dh);dRCtx.globalAlpha=1}
+function dTogRef(){dRV=!dRV;document.getElementById('dRC').style.opacity=dRV?'1':'0'}
+function dOnRef(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{dRI=img;dRefOpa()};img.src=ev.target.result};r.readAsDataURL(f)}
+function dSU(){dUnS.push(dCtx.getImageData(0,0,dW,dH));if(dUnS.length>40)dUnS.shift()}
+function dUndo(){if(dUnS.length<=1)return;dUnS.pop();dCtx.putImageData(dUnS[dUnS.length-1],0,0)}
+function dClr(){dSU();dCtx.fillStyle='#fff';dCtx.fillRect(0,0,dW,dH)}
+function hx2rgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function dFF(sx,sy){const id=dCtx.getImageData(0,0,dW,dH);const d=id.data;const col=hx2rgb(document.getElementById('d-color').value);const idx=(y,x)=>(y*dW+x)*4;const si=idx(sy,sx);const tr=[d[si],d[si+1],d[si+2],d[si+3]];if(tr[0]===col[0]&&tr[1]===col[1]&&tr[2]===col[2])return;const st=[[sx,sy]];const m=i=>d[i]===tr[0]&&d[i+1]===tr[1]&&d[i+2]===tr[2]&&d[i+3]===tr[3];dSU();while(st.length){const[x,y]=st.pop();if(x<0||x>=dW||y<0||y>=dH)continue;const i=idx(y,x);if(!m(i))continue;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255;st.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}dCtx.putImageData(id,0,0)}
+function drwAi(){const pr=document.getElementById('drw-pr').value.trim();if(!pr)return;document.getElementById('drw-st').textContent='⏳...';const url='https://image.pollinations.ai/prompt/'+encodeURIComponent(pr+', '+aiStyle)+'?width='+aiW+'&height='+aiH+'&seed='+Math.floor(Math.random()*999999)+'&nologo=true&model=flux';const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{dRI=img;dRefOpa();document.getElementById('drw-st').textContent='✅'};img.onerror=()=>{document.getElementById('drw-st').textContent='❌'};img.src=url}
+function drawSave(){pendPages.push(document.getElementById('dDC').toDataURL('image/png'));renderPgs(pendPages);cModal('m-draw');toast('Добавлено!')}
+var eCtx,eRCtx,eW=0,eH=0,eTl='pen',eDr=false,eLX=0,eLY=0,eUnS=[],eLnS=null,eLnX=0,eLnY=0,eRI=null,eRV=true,eInit=false;
+function initEditor(){const w=document.getElementById('e-wrap');eW=w.clientWidth||900;eH=w.clientHeight||600;const rc=document.getElementById('eRC'),dc=document.getElementById('eDC');rc.width=eW;rc.height=eH;rc.style.width=eW+'px';rc.style.height=eH+'px';dc.width=eW;dc.height=eH;dc.style.width=eW+'px';dc.style.height=eH+'px';eRCtx=rc.getContext('2d');eCtx=dc.getContext('2d');eCtx.fillStyle='#fff';eCtx.fillRect(0,0,eW,eH);eUnS=[eCtx.getImageData(0,0,eW,eH)];if(!eInit){setupDC2(dc);eInit=true}eBrush()}
+function setupDC2(c){function pos(e){const r=c.getBoundingClientRect();const s=e.touches?e.touches[0]:e;return[s.clientX-r.left,s.clientY-r.top]}c.onmousedown=e=>eSt(...pos(e));c.onmousemove=e=>{if(eDr)eMv(...pos(e))};c.onmouseup=()=>eEn();c.onmouseleave=()=>{eDr=false};c.ontouchstart=e=>{e.preventDefault();eSt(...pos(e))};c.ontouchmove=e=>{e.preventDefault();if(eDr)eMv(...pos(e))};c.ontouchend=e=>{e.preventDefault();eEn()}}
+function eSt(x,y){eDr=true;eLX=x;eLY=y;if(eTl==='fill'){eFF(Math.round(x),Math.round(y));eDr=false;return}if(eTl==='line'){eLnX=x;eLnY=y;eLnS=eCtx.getImageData(0,0,eW,eH);return}eSU();eCtx.beginPath();eCtx.moveTo(x,y)}
+function eMv(x,y){if(eTl==='pen'||eTl==='eraser'){eCtx.lineTo(x,y);eCtx.stroke()}else if(eTl==='line'){eCtx.putImageData(eLnS,0,0);eCtx.beginPath();eCtx.moveTo(eLnX,eLnY);eCtx.lineTo(x,y);eCtx.stroke()}eLX=x;eLY=y}
+function eEn(){if(eTl==='line'&&eDr)eSU();eDr=false}
+function eTool(t){eTl=t;['e-pen','e-eraser','e-line','e-fill'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',id==='e-'+t)});eBrush();document.getElementById('eDC').style.cursor=t==='fill'?'default':'crosshair'}
+function eBrush(){if(!eCtx)return;const s=+document.getElementById('e-size').value;const c=document.getElementById('e-color').value;document.getElementById('e-sv').textContent=s;eCtx.lineWidth=s;eCtx.lineCap='round';eCtx.lineJoin='round';if(eTl==='eraser'){eCtx.globalCompositeOperation='destination-out';eCtx.strokeStyle='rgba(0,0,0,1)'}else{eCtx.globalCompositeOperation='source-over';eCtx.strokeStyle=c}}
+function eRefOpa(){const v=+document.getElementById('e-opa').value;document.getElementById('e-ov').textContent=v+'%';if(!eRCtx||!eRI)return;eRCtx.clearRect(0,0,eW,eH);const sc=Math.min(eW/eRI.width,eH/eRI.height)*.95;const dw=eRI.width*sc,dh=eRI.height*sc,dx=(eW-dw)/2,dy=(eH-dh)/2;eRCtx.globalAlpha=v/100;eRCtx.drawImage(eRI,dx,dy,dw,dh);eRCtx.globalAlpha=1}
+function eTogRef(){eRV=!eRV;document.getElementById('eRC').style.opacity=eRV?'1':'0'}
+function eLoadRef(){document.getElementById('e-fi').click()}
+function eOnRef(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{eRI=img;eRefOpa()};img.src=ev.target.result};r.readAsDataURL(f)}
+function eSU(){eUnS.push(eCtx.getImageData(0,0,eW,eH));if(eUnS.length>40)eUnS.shift()}
+function eUndo(){if(eUnS.length<=1)return;eUnS.pop();eCtx.putImageData(eUnS[eUnS.length-1],0,0)}
+function eClear(){eSU();eCtx.fillStyle='#fff';eCtx.fillRect(0,0,eW,eH)}
+function eFF(sx,sy){const id=eCtx.getImageData(0,0,eW,eH);const d=id.data;const col=hx2rgb(document.getElementById('e-color').value);const idx=(y,x)=>(y*eW+x)*4;const si=idx(sy,sx);const tr=[d[si],d[si+1],d[si+2],d[si+3]];if(tr[0]===col[0]&&tr[1]===col[1]&&tr[2]===col[2])return;const st=[[sx,sy]];const m=i=>d[i]===tr[0]&&d[i+1]===tr[1]&&d[i+2]===tr[2]&&d[i+3]===tr[3];eSU();while(st.length){const[x,y]=st.pop();if(x<0||x>=eW||y<0||y>=eH)continue;const i=idx(y,x);if(!m(i))continue;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255;st.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}eCtx.putImageData(id,0,0)}
+function eSave(){const a=document.createElement('a');a.href=document.getElementById('eDC').toDataURL('image/png');a.download='drawing.png';a.click();toast('Скачано!')}
+async function sha256(m){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(m));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function applyAdm(){const staff=isAdmin||isMod;document.querySelectorAll('.adm-only').forEach(el=>el.style.display=isAdmin?'':'none');document.querySelectorAll('.staff-only').forEach(el=>el.style.display=staff?'':'none');const b=document.getElementById('role-badge');if(isAdmin){b.style.display='block';b.textContent='👑 АДМИН';b.style.color='var(--acc)';b.style.background='rgba(245,200,66,.1)';b.style.borderRadius='8px'}else if(isMod){b.style.display='block';b.textContent='🛡️ МОД';b.style.color='var(--blu)';b.style.background='rgba(91,141,238,.1)';b.style.borderRadius='8px'}else{b.style.display='none'}document.getElementById('adm-label').textContent=staff?'Выйти':'Запросить Права'}
+function toggleAdmin(){if(isAdmin||isMod){isAdmin=false;isMod=false;sessionStorage.removeItem('ch_adm');sessionStorage.removeItem('ch_mod');applyAdm();toast('Вышел');if(curPage==='ai'||curPage==='panel')go('catalog')}else{oModal('m-admin')}}
+async function doAdmLogin(){const pw=document.getElementById('adm-pw').value;const h=await sha256(pw);if(selRole==='admin'&&h===AH){isAdmin=true;isMod=false;sessionStorage.setItem('ch_adm','1');sessionStorage.removeItem('ch_mod');cModal('m-admin');applyAdm();toast('Админ! 👑');fbDoc('users',curUser).set({role:'admin'},{merge:true})}else if(selRole==='mod'&&h===MH){isMod=true;isAdmin=false;sessionStorage.setItem('ch_mod','1');sessionStorage.removeItem('ch_adm');cModal('m-admin');applyAdm();toast('Модератор! 🛡️');fbDoc('users',curUser).set({role:'mod'},{merge:true})}else{toast('Неверный пароль!',1)}document.getElementById('adm-pw').value=''}
+function toggleSvc(on){if(on){fbDoc('config','service').set({enabled:true,reason:''});toast('Вкл!');cModal('m-disable')}else{fbDoc('config','service').set({enabled:false,reason:document.getElementById('dis-reason').value.trim()||'Тех. работы'});toast('Откл');cModal('m-disable')}}
+function checkSvc(){fbDoc('config','service').onSnapshot(doc=>{if(!doc.exists)return;const d=doc.data();if(!d.enabled&&!isAdmin){document.getElementById('svc-off').style.display='flex';document.getElementById('svc-reason').textContent=d.reason||''}else{document.getElementById('svc-off').style.display='none'}const st=document.getElementById('svc-st');if(st)st.textContent=d.enabled?'🟢 Вкл':'🔴 '+d.reason})}
+function setAnnounce(){fbDoc('config','announce').set({text:document.getElementById('ann-inp').value.trim(),ts:Date.now()});toast('Опубликовано!')}
+function checkAnn(){fbDoc('config','announce').onSnapshot(doc=>{if(!doc.exists)return;const d=doc.data();const el=document.getElementById('announce');if(d.text){el.style.display='flex';document.getElementById('announce-txt').textContent=d.text}else{el.style.display='none'}})}
+function loadPanelDB(){const el=document.getElementById('panel-db');el.innerHTML='';fbGet('comics').then(snap=>{snap.forEach(d=>{const c=d.data();const item=document.createElement('div');item.style='display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border:1px solid var(--bor);border-radius:var(--r);margin-bottom:6px';item.innerHTML='<span style="flex:1;font-weight:600">'+c.name+'</span><span style="font-size:12px;color:var(--t3)">'+c.author+'</span><button class="btn bd bs" onclick="fbDoc(\'comics\',\''+d.id+'\').delete().then(function(){toast(\'Удалено!\');loadPanelDB()">🗑️</button>';el.appendChild(item)})})}
+function loadPanelUsers(){const el=document.getElementById('panel-users');el.innerHTML='';fbGet('users').then(snap=>{snap.forEach(d=>{const u=d.data();const item=document.createElement('div');item.style='display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border:1px solid var(--bor);border-radius:var(--r);margin-bottom:6px';item.innerHTML='<span style="flex:1;font-weight:600">'+(u.name||d.id)+'</span><span style="font-size:12px">'+(u.blocked?'🚫':u.muted?'🔇':'✅')+'</span>'+(!u.blocked?'<button class="btn bd bs" onclick="fbDoc(\'users\',\''+d.id+'\').set({blocked:true},{merge:true});loadPanelUsers()">🚫</button>':'<button class="btn bg bs" onclick="fbDoc(\'users\',\''+d.id+'\').set({blocked:false},{merge:true});loadPanelUsers()">✅</button>')+(!u.muted?'<button class="btn bg bs" onclick="fbDoc(\'users\',\''+d.id+'\').set({muted:true},{merge:true});loadPanelUsers()">🔇</button>':'<button class="btn bg bs" onclick="fbDoc(\'users\',\''+d.id+'\').set({muted:false},{merge:true});loadPanelUsers()">🔊</button>')+'<button class="btn bd bs" onclick="if(confirm(\'Удалить?\')){fbDoc(\'users\',\''+d.id+'\').delete();loadPanelUsers()}">💀</button>';el.appendChild(item)})})}
+function purgeAll(){if(!confirm('ВСЁ УДАЛИТЬ?'))return;if(!confirm('ТОЧНО?'))return;fbGet('comics').then(snap=>{var promises=[];snap.forEach(function(d){promises.push(fbDel('comics',d.id))});Promise.all(promises).then(function(){toast('Удалено!');loadPanelDB()})})}
+function checkUser(){if(!curUser)return;fbDoc('users',curUser).get().then(doc=>{if(!doc.exists)return;if(doc.data().blocked){document.getElementById('svc-off').style.display='flex';document.getElementById('svc-reason').textContent='Аккаунт заблокирован.'}})}
+function oModal(id){document.getElementById(id).classList.remove('hidden')}
+function cModal(id){document.getElementById(id).classList.add('hidden')}
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden')}));
+function doSearch(){searchQ=document.getElementById('sinp').value.toLowerCase();if(curPage==='catalog')renderCat();if(curPage==='my')renderMy()}
+function updStats(){document.getElementById('s-c').textContent=comics.length;document.getElementById('s-ch').textContent=comics.reduce((a,c)=>a+(c.chapters||[]).length,0);document.getElementById('s-p').textContent=comics.reduce((a,c)=>a+(c.chapters||[]).reduce((b,ch)=>b+(ch.pages||[]).length,0),0)}
+var _tt;function toast(m,err){const t=document.getElementById('toast');t.textContent=(err?'❌ ':'✅ ')+m;t.className='toast show';clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('m-admin').classList.contains('hidden'))doAdmLogin()});
 </script>
 </body>
 </html>
